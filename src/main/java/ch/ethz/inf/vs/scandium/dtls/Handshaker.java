@@ -434,6 +434,7 @@ public abstract class Handshaker {
 		 * where + indicates concatenation. A() is defined as: A(0) = seed, A(i)
 		 * = HMAC_hash(secret, A(i-1))
 		 */
+		// TODO SHA-256 ?
 		double hashLength = 32;
 		if (md.getAlgorithm().equals("SHA-1")) {
 			hashLength = 20;
@@ -710,8 +711,8 @@ public abstract class Handshaker {
 			InputStream in = new FileInputStream(DTLSConnector.KEY_STORE_LOCATION);
 			keyStore.load(in, KEY_STORE_PASSWORD.toCharArray());
 
-			certificates = keyStore.getCertificateChain("end");
-			privateKey = (PrivateKey) keyStore.getKey("end", KEY_STORE_PASSWORD.toCharArray());
+			certificates = keyStore.getCertificateChain("client");
+			privateKey = (PrivateKey) keyStore.getKey("client", KEY_STORE_PASSWORD.toCharArray());
 		} catch (Exception e) {
 //			LOG.severe("Could not load the keystore.");
 //			e.printStackTrace();
