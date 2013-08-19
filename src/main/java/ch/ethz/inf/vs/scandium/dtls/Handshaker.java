@@ -33,6 +33,9 @@ package ch.ethz.inf.vs.scandium.dtls;
 
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.KeyStore;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -434,7 +437,6 @@ public abstract class Handshaker {
 		 * where + indicates concatenation. A() is defined as: A(0) = seed, A(i)
 		 * = HMAC_hash(secret, A(i-1))
 		 */
-		// TODO SHA-256 ?
 		double hashLength = 32;
 		if (md.getAlgorithm().equals("SHA-1")) {
 			hashLength = 20;
@@ -703,7 +705,7 @@ public abstract class Handshaker {
 	/**
 	 * Loads the given keyStore (location specified in Californium.properties).
 	 * The keyStore must contain the private key and the corresponding
-	 * certificate (chain). The keyStore alias is expected to be "end".
+	 * certificate (chain). The keyStore alias is expected to be "client".
 	 */
 	protected void loadKeyStore() {
 		try {
@@ -714,8 +716,6 @@ public abstract class Handshaker {
 			certificates = keyStore.getCertificateChain("client");
 			privateKey = (PrivateKey) keyStore.getKey("client", KEY_STORE_PASSWORD.toCharArray());
 		} catch (Exception e) {
-//			LOG.severe("Could not load the keystore.");
-//			e.printStackTrace();
 			LOG.log(Level.SEVERE, "Could not load the keystore.", e);
 		}
 	}
@@ -730,7 +730,7 @@ public abstract class Handshaker {
 
 		try {
 			KeyStore trustStore = KeyStore.getInstance("JKS");
-			InputStream in = new FileInputStream(DTLSConnector.KEY_STORE_LOCATION);
+			InputStream in = new FileInputStream(DTLSConnector.TRUST_STORE_LOCATION);
 			trustStore.load(in, TRUST_STORE_PASSWORD.toCharArray());
 			
 			trustedCertificates = trustStore.getCertificateChain("root");
