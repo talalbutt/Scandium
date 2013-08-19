@@ -100,26 +100,6 @@ public abstract class ConnectorBase implements Connector {
 		sendNext(raw);
 	}
 	
-//	/**
-//	 * Blocking method. Gets the next outgoing message (for sending).
-//	 *
-//	 * @return the next outgoing message
-//	 * @throws InterruptedException the interrupted exception
-//	 * @throws IOException Signals that an I/O exception has occurred.
-//	 */
-//	protected RawData getNextOutgoing() throws InterruptedException, IOException {
-//		return outgoing.take();
-//	}
-//	
-//	/**
-//	 * Forward incoming message to the receiver.
-//	 *
-//	 * @param raw the raw data
-//	 */
-//	protected void forwardIncoming(RawData raw) {
-//		
-//	}
-	
 	/* (non-Javadoc)
 	 * @see ch.inf.vs.californium.network.connector.Connector#start()
 	 */

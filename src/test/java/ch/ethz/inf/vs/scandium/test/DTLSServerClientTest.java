@@ -1,4 +1,4 @@
-package ch.inf.vs.scandium.test;
+package ch.ethz.inf.vs.scandium.test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;

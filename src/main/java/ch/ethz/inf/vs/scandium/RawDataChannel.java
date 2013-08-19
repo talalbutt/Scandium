@@ -9,37 +9,12 @@ package ch.ethz.inf.vs.scandium;
 public interface RawDataChannel {
 
 	/**
-	 * Sends the specified request over the connector that the stack is
-	 * connected to.
+	 * Sends raw Data.
 	 * 
-	 * @param exchange
-	 *            the exchange
-	 * @param request
-	 *            the request
+	 * @param raw
+	 *            the data
 	 */
-	public void sendRequest(Exchange exchange, Request request);
-
-	/**
-	 * Sends the specified response over the connector that the stack is
-	 * connected to.
-	 * 
-	 * @param exchange
-	 *            the exchange
-	 * @param response
-	 *            the response
-	 */
-	public void sendResponse(Exchange exchange, Response response);
-
-	/**
-	 * Sends the specified empty message over the connector that the stack is
-	 * connected to.
-	 * 
-	 * @param exchange
-	 *            the exchange
-	 * @param emptyMessage
-	 *            the empty message
-	 */
-	public void sendEmptyMessage(Exchange exchange, EmptyMessage emptyMessage);
+	public void sendData(RawData raw);
 
 	/**
 	 * Forwards the specified data to the stack. First, they must be parsed to a
