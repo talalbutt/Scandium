@@ -1,0 +1,113 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+	xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
+
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>ch.ethz.inf.vs</groupId>
+	<artifactId>scandium</artifactId>
+	<version>0.1.0-SNAPSHOT</version>
+	<packaging>pom</packaging>
+
+	<name>Scandium (Sc)</name>
+	<description>Scandium (Sf) Security for Californium</description>
+	<url>http://people.inf.ethz.ch/mkovatsc/scandium.php</url>
+
+	<organization>
+		<name>Institute for Pervasive Computing, ETH Zurich</name>
+		<url>http://www.vs.inf.ethz.ch/</url>
+	</organization>
+
+	<licenses>
+		<license>
+			<name>BSD 3-Clause</name>
+			<url>http://people.inf.ethz.ch/mkovatsc/resources/LICENSE</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
+
+	<developers>
+		<developer>
+			<id>mkovatsc</id>
+			<name>Matthias Kovatsch</name>
+			<email>kovatsch@inf.ethz.ch</email>
+			<url>http://people.inf.ethz.ch/mkovatsc/</url>
+			<organization>ETH Zurich</organization>
+			<organizationUrl>http://www.vs.inf.ethz.ch/</organizationUrl>
+			<roles>
+				<role>creator</role>
+				<role>architect</role>
+				<role>developer</role>
+			</roles>
+		</developer>
+	</developers>
+
+	<dependencies>
+		<dependency>
+			<groupId>ch.ethz.inf.vs</groupId>
+			<artifactId>californium</artifactId>
+			<version>0.18.0-SNAPSHOT</version>
+			<type>jar</type>
+		</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.8.1</version>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>2.3.2</version>
+				<configuration>
+					<source>1.7</source>
+					<target>1.7</target>
+					<encoding>${project.build.sourceEncoding}</encoding>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+	<repositories>
+		<repository>
+			<id>thingml-snapshot</id>
+			<name>thingml-snapshot</name>
+			<url>http://maven.thingml.org/thingml-snapshot/</url>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</repository>
+		<repository>
+			<id>thingml-release</id>
+			<name>thingml-release</name>
+			<url>http://maven.thingml.org/thingml-release/</url>
+		</repository>
+		<repository>
+			<id>thirdparty</id>
+			<name>thingml-snapshot</name>
+			<url>http://maven.thingml.org/thirdparty/</url>
+		</repository>
+	</repositories>
+
+	<distributionManagement>
+		<repository>
+			<id>thingml-release</id>
+			<name>thingml-release</name>
+			<url>http://maven.thingml.org/archiva/repository/thingml-release/</url>
+		</repository>
+		<snapshotRepository>
+			<id>thingml-snapshot</id>
+			<name>thingml-snapshot</name>
+			<url>http://maven.thingml.org/archiva/repository/thingml-snapshot/</url>
+		</snapshotRepository>
+	</distributionManagement>
+
+</project>
