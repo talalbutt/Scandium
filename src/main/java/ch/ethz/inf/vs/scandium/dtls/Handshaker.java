@@ -726,14 +726,15 @@ public abstract class Handshaker {
 	 * @return the trusted certificates.
 	 */
 	protected Certificate[] loadTrustedCertificates() {
-		Certificate[] trustedCertificates = new Certificate[] {};
+		Certificate[] trustedCertificates = new Certificate[1];
 
 		try {
 			KeyStore trustStore = KeyStore.getInstance("JKS");
 			InputStream in = new FileInputStream(DTLSConnector.TRUST_STORE_LOCATION);
 			trustStore.load(in, TRUST_STORE_PASSWORD.toCharArray());
 			
-			trustedCertificates = trustStore.getCertificateChain("root");
+			// TODO load multiple certificates?
+			trustedCertificates[0] = trustStore.getCertificate("root");
 		} catch (Exception e) {
 			LOG.severe("Could not load the trusted certificates.");
 			e.printStackTrace();
