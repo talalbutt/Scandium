@@ -1,5 +1,6 @@
 package ch.ethz.inf.vs.scandium.connector;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -17,6 +18,7 @@ import ch.ethz.inf.vs.scandium.RawData;
 import ch.ethz.inf.vs.scandium.dtls.*;
 import ch.ethz.inf.vs.scandium.dtls.AlertMessage.AlertDescription;
 import ch.ethz.inf.vs.scandium.dtls.AlertMessage.AlertLevel;
+import ch.ethz.inf.vs.scandium.util.ScProperties;
 import ch.ethz.inf.vs.scandium.util.ScandiumLogger;
 
 public class DTLSConnector extends ConnectorBase {
@@ -25,8 +27,8 @@ public class DTLSConnector extends ConnectorBase {
 
 	/////////////////
 	// the maximum fragment size before DTLS fragmentation must be applied
-//	public static final String KEY_STORE_LOCATION = "path/to/keyStore.jks" /*.replace("/", File.pathSeparator)*/;
-	public static final String KEY_STORE_LOCATION = "cert/keyStore.jks";
+	public static final String KEY_STORE_LOCATION = ScProperties.std.getProperty("KEY_STORE_LOCATION".replace("/", File.pathSeparator));
+	public static final String TRUST_STORE_LOCATION = ScProperties.std.getProperty("TRUST_STORE_LOCATION".replace("/", File.pathSeparator));
 	
 	private int max_fragment_length = 200; // TODO: get from config
 

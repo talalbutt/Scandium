@@ -48,6 +48,7 @@ import ch.ethz.inf.vs.scandium.dtls.CertificateRequest.SignatureAlgorithm;
 import ch.ethz.inf.vs.scandium.dtls.CertificateTypeExtension.CertificateType;
 import ch.ethz.inf.vs.scandium.dtls.CipherSuite.KeyExchangeAlgorithm;
 import ch.ethz.inf.vs.scandium.dtls.SupportedPointFormatsExtension.ECPointFormat;
+import ch.ethz.inf.vs.scandium.util.ScProperties;
 
 /**
  * Server handshaker does the protocol handshaking from the point of view of a
@@ -61,8 +62,7 @@ public class ServerHandshaker extends Handshaker {
 	// Members ////////////////////////////////////////////////////////
 
 	/** Is the client required to authenticate itself? */
-//	private boolean clientAuthenticationRequired = Properties.std.getBool("CLIENT_AUTHENTICATION");
-	private boolean clientAuthenticationRequired = false; // TODO: get from config
+	private boolean clientAuthenticationRequired = ScProperties.std.getBool("CLIENT_AUTHENTICATION");
 
 	/**
 	 * The client's public key from its certificate (only sent when

@@ -42,6 +42,7 @@ import ch.ethz.inf.vs.scandium.RawData;
 import ch.ethz.inf.vs.scandium.dtls.AlertMessage.AlertDescription;
 import ch.ethz.inf.vs.scandium.dtls.AlertMessage.AlertLevel;
 import ch.ethz.inf.vs.scandium.dtls.CertificateTypeExtension.CertificateType;
+import ch.ethz.inf.vs.scandium.util.ScProperties;
 
 /**
  * ClientHandshaker does the protocol handshaking from the point of view of a
@@ -412,8 +413,7 @@ public class ClientHandshaker extends Handshaker {
 			break;
 
 		case PSK:
-//			String identity = Properties.std.getProperty("PSK_IDENTITY");
-			String identity = "PSK_Identity"; // TODO: get from config
+			String identity = ScProperties.std.getProperty("PSK_IDENTITY");
 			clientKeyExchange = new PSKClientKeyExchange(identity);
 			byte[] psk = sharedKeys.get(identity);
 			
@@ -534,9 +534,7 @@ public class ClientHandshaker extends Handshaker {
 		clientRandom = message.getRandom();
 
 		// the mandatory to implement ciphersuites, the preferred one should be first in the list
-//		if (Properties.std.getStr("PREFERRED_CIPHER_SUITE").equals(CipherSuite.TLS_PSK_WITH_AES_128_CCM_8.toString())) {
-		// TODO: get from config:
-		if (CipherSuite.TLS_PSK_WITH_AES_128_CCM_8.toString().equals(CipherSuite.TLS_PSK_WITH_AES_128_CCM_8.toString())) {
+		if (ScProperties.std.getStr("PREFERRED_CIPHER_SUITE").equals(CipherSuite.TLS_PSK_WITH_AES_128_CCM_8.toString())) {
 			message.addCipherSuite(CipherSuite.TLS_PSK_WITH_AES_128_CCM_8);
 			message.addCipherSuite(CipherSuite.TLS_ECDHE_ECDSA_WITH_AES_128_CCM_8);
 		} else {

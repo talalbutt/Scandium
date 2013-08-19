@@ -38,6 +38,7 @@ import java.util.logging.Logger;
 
 import ch.ethz.inf.vs.scandium.dtls.CertificateTypeExtension.CertificateType;
 import ch.ethz.inf.vs.scandium.dtls.SupportedPointFormatsExtension.ECPointFormat;
+import ch.ethz.inf.vs.scandium.util.ScProperties;
 import ch.ethz.inf.vs.scandium.util.ScandiumLogger;
 import ch.inf.vs.californium.network.serializer.DatagramReader;
 import ch.inf.vs.californium.network.serializer.DatagramWriter;
@@ -135,8 +136,7 @@ public class ClientHello extends HandshakeMessage {
 		
 		// the supported certificate types
 		CertificateTypeExtension certificateTypeExtension = new CertificateTypeExtension(true);
-//		if (Properties.std.getBool("USE_RAW_PUBLIC_KEY")) {
-		if (true) { // TODO: get from config 
+		if (ScProperties.std.getBool("USE_RAW_PUBLIC_KEY")) { 
 			certificateTypeExtension.addCertificateType(CertificateType.RAW_PUBLIC_KEY);
 			certificateTypeExtension.addCertificateType(CertificateType.X_509);
 		} else {

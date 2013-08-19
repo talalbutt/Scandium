@@ -61,6 +61,7 @@ import ch.ethz.inf.vs.scandium.dtls.AlertMessage.AlertDescription;
 import ch.ethz.inf.vs.scandium.dtls.AlertMessage.AlertLevel;
 import ch.ethz.inf.vs.scandium.dtls.CertSendExtension.CertType;
 import ch.ethz.inf.vs.scandium.dtls.CipherSuite.KeyExchangeAlgorithm;
+import ch.ethz.inf.vs.scandium.util.ScProperties;
 import ch.ethz.inf.vs.scandium.util.ScandiumLogger;
 
 /**
@@ -589,8 +590,7 @@ public abstract class Handshaker {
 			
 			byte[] messageBytes = handshakeMessage.fragmentToByteArray();
 			
-//			int maxFragmentLength = Properties.std.getInt("MAX_FRAGMENT_LENGTH");
-			int maxFragmentLength = 200; // TODO: read from config
+			int maxFragmentLength = ScProperties.std.getInt("MAX_FRAGMENT_LENGTH");
 			if (messageBytes.length > maxFragmentLength) {
 				/*
 				 * The sender then creates N handshake messages, all with the
@@ -707,8 +707,7 @@ public abstract class Handshaker {
 	protected void loadKeyStore() {
 		try {
 			KeyStore keyStore = KeyStore.getInstance("JKS");
-//			InputStream in = new FileInputStream(Properties.std.getProperty("KEY_STORE_LOCATION".replace("/", File.pathSeparator)));
-			InputStream in = new FileInputStream(DTLSConnector.KEY_STORE_LOCATION); // TODO: get from config
+			InputStream in = new FileInputStream(DTLSConnector.KEY_STORE_LOCATION);
 			keyStore.load(in, KEY_STORE_PASSWORD.toCharArray());
 
 			certificates = keyStore.getCertificateChain("end");
@@ -730,8 +729,7 @@ public abstract class Handshaker {
 
 		try {
 			KeyStore trustStore = KeyStore.getInstance("JKS");
-//			InputStream in = new FileInputStream(Properties.std.getProperty("TRUST_STORE_LOCATION".replace("/", File.pathSeparator)));
-			InputStream in = new FileInputStream("path/to/trustStore.jks"); // TODO: get from config
+			InputStream in = new FileInputStream(DTLSConnector.KEY_STORE_LOCATION);
 			trustStore.load(in, TRUST_STORE_PASSWORD.toCharArray());
 			
 			trustedCertificates = trustStore.getCertificateChain("root");
