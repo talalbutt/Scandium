@@ -30,20 +30,16 @@ public class DTLSConnector extends ConnectorBase {
 	public static final String KEY_STORE_LOCATION = ScProperties.std.getProperty("KEY_STORE_LOCATION".replace("/", File.pathSeparator));
 	public static final String TRUST_STORE_LOCATION = ScProperties.std.getProperty("TRUST_STORE_LOCATION".replace("/", File.pathSeparator));
 	
-	private int max_fragment_length = 200; // TODO: get from config
+	private int max_fragment_length = ScProperties.std.getInt("MAX_FRAGMENT_LENGTH");
 
 	// the initial timer value for retransmission; rfc6347, section: 4.2.4.1
-	private int retransmission_timeout = 1000; // milliseconds // TODO: get from config
+	private int retransmission_timeout = ScProperties.std.getInt("RETRANSMISSION_TIMEOUT");
 	
 	// maximal number of retransmissions before the attempt to transmit a message is canceled
-	private int max_retransmitt = 4; // TODO: get from config
+	private int max_retransmit = ScProperties.std.getInt("MAX_RETRANSMIT");
 	/////////////////
 	
 	private final EndpointAddress address;
-	
-//	private int datagramSize = 1000; // TODO: change dynamically?
-//	private byte[] buffer = new byte[datagramSize];
-//	private DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
 	
 	private DatagramSocket socket;
 	
@@ -390,8 +386,7 @@ public class DTLSConnector extends ConnectorBase {
 		byte[] payload = new byte[] {};
 		// the overhead for the record header (13 bytes) and the handshake
 		// header (12 bytes) is 25 bytes
-//		int maxPayloadSize = Properties.std.getInt("MAX_FRAGMENT_LENGTH") + 25;
-		int maxPayloadSize = max_fragment_length;
+		int maxPayloadSize = max_fragment_length + 25;
 		
 		// put as many records into one datagram as allowed by the block size
 		List<DatagramPacket> datagrams = new ArrayList<DatagramPacket>();
@@ -434,7 +429,7 @@ public class DTLSConnector extends ConnectorBase {
 	private void handleTimeout(DTLSFlight flight) {
 
 		// TODO Martin: Isn't this supposed to be done in the reliability layer? 
-		final int max = max_retransmitt;
+		final int max = max_retransmit;
 
 		// check if limit of retransmissions reached
 		if (flight.getTries() < max) {

@@ -154,30 +154,8 @@ public class ScProperties extends java.util.Properties {
 
 	private void init() {
 
-		/* CoAP Protocol constants */
-
-		// default CoAP port as defined in draft-ietf-core-coap-05, section 7.1:
-		// MUST be supported by a server for resource discovery and
-		// SHOULD be supported for providing access to other resources.
-		set("DEFAULT_PORT", 5683);
-
-		/* Implementation-specific */
-
-		// buffer size for incoming datagrams, in bytes
-		// TODO find best value
-		set("RX_BUFFER_SIZE", 4 * 1024); // [bytes]
-
 		/* DTLS constants */
-		
-		// whether DTLS should be enabled 
-		set("ENABLE_DTLS", false);
-
-		// whether the certificate message should only contain the peer's public
-		// key or the full X.509 certificate
-		set("USE_RAW_PUBLIC_KEY", true);
-
-		// whether the server requires mutual authentication
-		set("CLIENT_AUTHENTICATION", false);
+		set("DEFAULT_PORT", 5683);
 
 		// the location of the key store (contains private key and corresponding
 		// certificate chain)
@@ -188,16 +166,29 @@ public class ScProperties extends java.util.Properties {
 		set("TRUST_STORE_LOCATION", "certs/trustStore.jks");
 
 		// the preferred cipher suite
+		// SSL_NULL_WITH_NULL_NULL
+		// TLS_PSK_WITH_AES_128_CCM_8
+		// TLS_ECDHE_ECDSA_WITH_AES_128_CCM_8
 		set("PREFERRED_CIPHER_SUITE", CipherSuite.TLS_PSK_WITH_AES_128_CCM_8.toString());
 
-		// the maximum fragment size before DTLS fragmentation must be applied
-		set("MAX_FRAGMENT_LENGTH", 200); // [bytes]
+		// the identity hint when using the pre-shared key mode
+		set("PSK_IDENTITY", "PSK_Identity");
+
+		// whether the certificate message should only contain the peer's public
+		// key or the full X.509 certificate
+		set("USE_RAW_PUBLIC_KEY", true);
+
+		// whether the server requires mutual authentication
+		set("CLIENT_AUTHENTICATION", false);
 
 		// the initial timer value for retransmission; rfc6347, section: 4.2.4.1
 		set("RETRANSMISSION_TIMEOUT", 1000); // [milliseconds]
 
-		// the identity hint when using the pre-shared key mode
-		set("PSK_IDENTITY", "PSK_Identity");
+		// maximal number of retransmissions before the attempt to transmit a message is canceled
+		set("MAX_RETRANSMIT", 4);
+
+		// the maximum fragment size before DTLS fragmentation must be applied
+		set("MAX_FRAGMENT_LENGTH", 4096); // [bytes]
 	}
 
 	private void initUserDefined(String fileName) {
