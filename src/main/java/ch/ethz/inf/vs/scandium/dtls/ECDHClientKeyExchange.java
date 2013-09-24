@@ -35,8 +35,8 @@ import java.security.interfaces.ECPublicKey;
 import java.security.spec.ECParameterSpec;
 import java.security.spec.ECPoint;
 
-import ch.inf.vs.californium.network.serializer.DatagramReader;
-import ch.inf.vs.californium.network.serializer.DatagramWriter;
+import ch.ethz.inf.vs.scandium.util.DatagramReader;
+import ch.ethz.inf.vs.scandium.util.DatagramWriter;
 
 /**
  * {@link ClientKeyExchange} message for all ECDH based key exchange methods.

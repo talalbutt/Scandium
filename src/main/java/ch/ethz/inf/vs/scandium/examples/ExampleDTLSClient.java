@@ -33,12 +33,12 @@ package ch.ethz.inf.vs.scandium.examples;
 
 import java.io.IOException;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 
-import ch.ethz.inf.vs.scandium.EndpointAddress;
-import ch.ethz.inf.vs.scandium.RawData;
-import ch.ethz.inf.vs.scandium.RawDataChannel;
-import ch.ethz.inf.vs.scandium.connector.Connector;
-import ch.ethz.inf.vs.scandium.connector.DTLSConnector;
+import ch.ethz.inf.vs.elements.Connector;
+import ch.ethz.inf.vs.elements.RawData;
+import ch.ethz.inf.vs.elements.RawDataChannel;
+import ch.ethz.inf.vs.scandium.DTLSConnector;
 import ch.ethz.inf.vs.scandium.util.ScProperties;
 
 public class ExampleDTLSClient {
@@ -48,7 +48,7 @@ public class ExampleDTLSClient {
 	private Connector dtlsConnector;
 	
 	public ExampleDTLSClient() {
-		dtlsConnector = new DTLSConnector(new EndpointAddress(0));
+		dtlsConnector = new DTLSConnector(new InetSocketAddress(0));
 		dtlsConnector.setRawDataReceiver(new RawDataChannelImpl(dtlsConnector));
 	}
 	
@@ -70,7 +70,6 @@ public class ExampleDTLSClient {
 			this.connector = con;
 		}
 
-		@Override
 		public void sendData(RawData raw) {
 			connector.send(raw);
 		}

@@ -30,11 +30,10 @@
  ******************************************************************************/
 package ch.ethz.inf.vs.scandium.dtls;
 
+import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TimerTask;
-
-import ch.ethz.inf.vs.scandium.EndpointAddress;
 
 /**
  * DTLS messages are grouped into a series of message flights. One flight
@@ -57,7 +56,7 @@ public class DTLSFlight {
 	private List<Record> messages;
 
 	/** The peer's address. */
-	private EndpointAddress peerAddress;
+	private InetSocketAddress peerAddress;
 
 	/**
 	 * The current DTLS session with the peer. Needed to set the record sequence
@@ -102,11 +101,11 @@ public class DTLSFlight {
 		return messages;
 	}
 
-	public EndpointAddress getPeerAddress() {
+	public InetSocketAddress getPeerAddress() {
 		return peerAddress;
 	}
 
-	public void setPeerAddress(EndpointAddress peerAddress) {
+	public void setPeerAddress(InetSocketAddress peerAddress) {
 		this.peerAddress = peerAddress;
 	}
 

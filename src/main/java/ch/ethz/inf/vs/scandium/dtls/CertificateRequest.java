@@ -37,8 +37,8 @@ import java.util.List;
 
 import javax.security.auth.x500.X500Principal;
 
-import ch.inf.vs.californium.network.serializer.DatagramReader;
-import ch.inf.vs.californium.network.serializer.DatagramWriter;
+import ch.ethz.inf.vs.scandium.util.DatagramReader;
+import ch.ethz.inf.vs.scandium.util.DatagramWriter;
 
 /**
  * A non-anonymous server can optionally request a certificate from the client,

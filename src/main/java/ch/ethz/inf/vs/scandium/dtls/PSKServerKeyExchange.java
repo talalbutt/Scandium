@@ -2,8 +2,8 @@ package ch.ethz.inf.vs.scandium.dtls;
 
 import java.io.UnsupportedEncodingException;
 
-import ch.inf.vs.californium.network.serializer.DatagramReader;
-import ch.inf.vs.californium.network.serializer.DatagramWriter;
+import ch.ethz.inf.vs.scandium.util.DatagramReader;
+import ch.ethz.inf.vs.scandium.util.DatagramWriter;
 
 /**
  * The key exchange message sent when using the preshared key key exchange

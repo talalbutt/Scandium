@@ -30,6 +30,7 @@
  ******************************************************************************/
 package ch.ethz.inf.vs.scandium.dtls;
 
+import java.net.InetSocketAddress;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
@@ -37,8 +38,7 @@ import java.security.SecureRandom;
 import java.security.interfaces.ECPublicKey;
 import java.security.spec.ECParameterSpec;
 
-import ch.ethz.inf.vs.scandium.EndpointAddress;
-import ch.ethz.inf.vs.scandium.RawData;
+import ch.ethz.inf.vs.elements.RawData;
 import ch.ethz.inf.vs.scandium.dtls.AlertMessage.AlertDescription;
 import ch.ethz.inf.vs.scandium.dtls.AlertMessage.AlertLevel;
 import ch.ethz.inf.vs.scandium.dtls.CertificateTypeExtension.CertificateType;
@@ -97,7 +97,7 @@ public class ClientHandshaker extends Handshaker {
 	 * @param session
 	 *            the session
 	 */
-	public ClientHandshaker(EndpointAddress endpointAddress, RawData message, DTLSSession session) {
+	public ClientHandshaker(InetSocketAddress endpointAddress, RawData message, DTLSSession session) {
 		super(endpointAddress, true, session);
 		this.message = message;
 	}

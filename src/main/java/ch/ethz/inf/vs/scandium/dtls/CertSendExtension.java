@@ -31,8 +31,8 @@
 package ch.ethz.inf.vs.scandium.dtls;
 
 import ch.ethz.inf.vs.scandium.dtls.HelloExtensions.ExtensionType;
-import ch.inf.vs.californium.network.serializer.DatagramReader;
-import ch.inf.vs.californium.network.serializer.DatagramWriter;
+import ch.ethz.inf.vs.scandium.util.DatagramReader;
+import ch.ethz.inf.vs.scandium.util.DatagramWriter;
 
 /**
  * The cert-send extension indicates the certificate format found in the

@@ -33,9 +33,7 @@ package ch.ethz.inf.vs.scandium.dtls;
 
 import java.io.FileInputStream;
 import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.net.InetSocketAddress;
 import java.security.KeyStore;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -57,9 +55,8 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
-import ch.ethz.inf.vs.scandium.EndpointAddress;
-import ch.ethz.inf.vs.scandium.RawData;
-import ch.ethz.inf.vs.scandium.connector.DTLSConnector;
+import ch.ethz.inf.vs.elements.RawData;
+import ch.ethz.inf.vs.scandium.DTLSConnector;
 import ch.ethz.inf.vs.scandium.dtls.AlertMessage.AlertDescription;
 import ch.ethz.inf.vs.scandium.dtls.AlertMessage.AlertLevel;
 import ch.ethz.inf.vs.scandium.dtls.CertSendExtension.CertType;
@@ -124,7 +121,7 @@ public abstract class Handshaker {
 
 	protected int state = -1;
 
-	protected EndpointAddress endpointAddress;
+	protected InetSocketAddress endpointAddress;
 
 	protected ProtocolVersion usedProtocol;
 	protected Random clientRandom;
@@ -201,7 +198,7 @@ public abstract class Handshaker {
 	 * @param session
 	 *            the session belonging to this handshake.
 	 */
-	public Handshaker(EndpointAddress peerAddress, boolean isClient, DTLSSession session) {
+	public Handshaker(InetSocketAddress peerAddress, boolean isClient, DTLSSession session) {
 		this.endpointAddress = peerAddress;
 		this.isClient = isClient;
 		this.session = session;

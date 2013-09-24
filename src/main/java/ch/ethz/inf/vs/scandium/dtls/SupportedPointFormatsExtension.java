@@ -34,8 +34,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ch.ethz.inf.vs.scandium.dtls.HelloExtensions.ExtensionType;
-import ch.inf.vs.californium.network.serializer.DatagramReader;
-import ch.inf.vs.californium.network.serializer.DatagramWriter;
+import ch.ethz.inf.vs.scandium.util.DatagramReader;
+import ch.ethz.inf.vs.scandium.util.DatagramWriter;
 
 /**
  * The supported point formats extension. See <a href="http://tools.ietf.org/html/rfc4492#section-5.1.2">RFC 4492,

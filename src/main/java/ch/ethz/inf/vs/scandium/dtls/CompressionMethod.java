@@ -33,8 +33,8 @@ package ch.ethz.inf.vs.scandium.dtls;
 import java.util.ArrayList;
 import java.util.List;
 
-import ch.inf.vs.californium.network.serializer.DatagramReader;
-import ch.inf.vs.californium.network.serializer.DatagramWriter;
+import ch.ethz.inf.vs.scandium.util.DatagramReader;
+import ch.ethz.inf.vs.scandium.util.DatagramWriter;
 
 /**
  * The algorithm used to compress data prior to encryption.

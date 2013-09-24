@@ -41,8 +41,8 @@ import javax.crypto.spec.SecretKeySpec;
 
 import ch.ethz.inf.vs.scandium.dtls.AlertMessage.AlertDescription;
 import ch.ethz.inf.vs.scandium.dtls.AlertMessage.AlertLevel;
+import ch.ethz.inf.vs.scandium.util.DatagramWriter;
 import ch.ethz.inf.vs.scandium.util.ScandiumLogger;
-import ch.inf.vs.californium.network.serializer.DatagramWriter;
 
 /**
  * A generic authenticated encryption block cipher mode which uses the 128-bit

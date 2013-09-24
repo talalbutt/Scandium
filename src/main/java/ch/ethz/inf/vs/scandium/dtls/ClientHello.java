@@ -38,10 +38,10 @@ import java.util.logging.Logger;
 
 import ch.ethz.inf.vs.scandium.dtls.CertificateTypeExtension.CertificateType;
 import ch.ethz.inf.vs.scandium.dtls.SupportedPointFormatsExtension.ECPointFormat;
+import ch.ethz.inf.vs.scandium.util.DatagramReader;
+import ch.ethz.inf.vs.scandium.util.DatagramWriter;
 import ch.ethz.inf.vs.scandium.util.ScProperties;
 import ch.ethz.inf.vs.scandium.util.ScandiumLogger;
-import ch.inf.vs.californium.network.serializer.DatagramReader;
-import ch.inf.vs.californium.network.serializer.DatagramWriter;
 
 /**
  * When a client first connects to a server, it is required to send the

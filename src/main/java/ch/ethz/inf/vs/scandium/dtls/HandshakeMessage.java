@@ -33,9 +33,9 @@ package ch.ethz.inf.vs.scandium.dtls;
 import java.util.logging.Logger;
 
 import ch.ethz.inf.vs.scandium.dtls.CipherSuite.KeyExchangeAlgorithm;
+import ch.ethz.inf.vs.scandium.util.DatagramReader;
+import ch.ethz.inf.vs.scandium.util.DatagramWriter;
 import ch.ethz.inf.vs.scandium.util.ScandiumLogger;
-import ch.inf.vs.californium.network.serializer.DatagramReader;
-import ch.inf.vs.californium.network.serializer.DatagramWriter;
 
 /**
  * Represents a general handshake message and defines the common header. The

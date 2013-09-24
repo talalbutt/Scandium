@@ -32,8 +32,8 @@ package ch.ethz.inf.vs.scandium.dtls;
 
 import java.util.List;
 
-import ch.inf.vs.californium.network.serializer.DatagramReader;
-import ch.inf.vs.californium.network.serializer.DatagramWriter;
+import ch.ethz.inf.vs.scandium.util.DatagramReader;
+import ch.ethz.inf.vs.scandium.util.DatagramWriter;
 
 /**
  * The server will send this message in response to a {@link ClientHello}

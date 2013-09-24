@@ -31,6 +31,7 @@
 
 package ch.ethz.inf.vs.scandium.dtls;
 
+import java.net.InetSocketAddress;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
@@ -39,7 +40,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import ch.ethz.inf.vs.scandium.EndpointAddress;
 import ch.ethz.inf.vs.scandium.dtls.AlertMessage.AlertDescription;
 import ch.ethz.inf.vs.scandium.dtls.AlertMessage.AlertLevel;
 import ch.ethz.inf.vs.scandium.dtls.CertificateRequest.ClientCertificateType;
@@ -96,7 +96,7 @@ public class ServerHandshaker extends Handshaker {
 	 * @param session
 	 *            the {@link DTLSSession}.
 	 */
-	public ServerHandshaker(EndpointAddress endpointAddress, DTLSSession session) {
+	public ServerHandshaker(InetSocketAddress endpointAddress, DTLSSession session) {
 		super(endpointAddress, false, session);
 
 		this.supportedCipherSuites = new ArrayList<CipherSuite>();

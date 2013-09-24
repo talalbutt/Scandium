@@ -34,9 +34,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
+import ch.ethz.inf.vs.scandium.util.DatagramReader;
+import ch.ethz.inf.vs.scandium.util.DatagramWriter;
 import ch.ethz.inf.vs.scandium.util.ScandiumLogger;
-import ch.inf.vs.californium.network.serializer.DatagramReader;
-import ch.inf.vs.californium.network.serializer.DatagramWriter;
 
 /**
  * A cipher suite defines key exchange algorithm, the bulk cipher algorithm, the

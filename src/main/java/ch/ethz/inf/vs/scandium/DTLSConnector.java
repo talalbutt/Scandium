@@ -1,9 +1,10 @@
-package ch.ethz.inf.vs.scandium.connector;
+package ch.ethz.inf.vs.scandium;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -13,11 +14,28 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import ch.ethz.inf.vs.scandium.EndpointAddress;
-import ch.ethz.inf.vs.scandium.RawData;
-import ch.ethz.inf.vs.scandium.dtls.*;
+import ch.ethz.inf.vs.elements.ConnectorBase;
+import ch.ethz.inf.vs.elements.RawData;
+import ch.ethz.inf.vs.scandium.dtls.AlertMessage;
 import ch.ethz.inf.vs.scandium.dtls.AlertMessage.AlertDescription;
 import ch.ethz.inf.vs.scandium.dtls.AlertMessage.AlertLevel;
+import ch.ethz.inf.vs.scandium.dtls.ApplicationMessage;
+import ch.ethz.inf.vs.scandium.dtls.ByteArrayUtils;
+import ch.ethz.inf.vs.scandium.dtls.ClientHandshaker;
+import ch.ethz.inf.vs.scandium.dtls.ClientHello;
+import ch.ethz.inf.vs.scandium.dtls.ContentType;
+import ch.ethz.inf.vs.scandium.dtls.DTLSFlight;
+import ch.ethz.inf.vs.scandium.dtls.DTLSMessage;
+import ch.ethz.inf.vs.scandium.dtls.DTLSSession;
+import ch.ethz.inf.vs.scandium.dtls.FragmentedHandshakeMessage;
+import ch.ethz.inf.vs.scandium.dtls.HandshakeException;
+import ch.ethz.inf.vs.scandium.dtls.HandshakeMessage;
+import ch.ethz.inf.vs.scandium.dtls.Handshaker;
+import ch.ethz.inf.vs.scandium.dtls.Record;
+import ch.ethz.inf.vs.scandium.dtls.ResumingClientHandshaker;
+import ch.ethz.inf.vs.scandium.dtls.ResumingServerHandshaker;
+import ch.ethz.inf.vs.scandium.dtls.ServerHandshaker;
+import ch.ethz.inf.vs.scandium.dtls.ServerHello;
 import ch.ethz.inf.vs.scandium.util.ScProperties;
 import ch.ethz.inf.vs.scandium.util.ScandiumLogger;
 
@@ -39,7 +57,7 @@ public class DTLSConnector extends ConnectorBase {
 	private int max_retransmit = ScProperties.std.getInt("MAX_RETRANSMIT");
 	/////////////////
 	
-	private final EndpointAddress address;
+	private final InetSocketAddress address;
 	
 	private DatagramSocket socket;
 	
@@ -55,7 +73,7 @@ public class DTLSConnector extends ConnectorBase {
 	/** Storing flights according to peer-addresses. */
 	private ConcurrentHashMap<String, DTLSFlight> flights = new ConcurrentHashMap<>();
 	
-	public DTLSConnector(EndpointAddress address) {
+	public DTLSConnector(InetSocketAddress address) {
 		super(address);
 		this.address = address;
 	}
@@ -84,7 +102,7 @@ public class DTLSConnector extends ConnectorBase {
 		if (packet.getLength() == 0)
 			return null;
 
-		EndpointAddress peerAddress = new EndpointAddress(packet.getAddress(), packet.getPort());
+		InetSocketAddress peerAddress = new InetSocketAddress(packet.getAddress(), packet.getPort());
 //		LOGGER.info(" => find handshaker for key "+peerAddress.toString());
 		DTLSSession session = dtlsSessions.get(peerAddress.toString());
 		Handshaker handshaker = handshakers.get(peerAddress.toString());
@@ -211,7 +229,7 @@ public class DTLSConnector extends ConnectorBase {
 				if (raw != null) {
 
 
-//					msg.setPeerAddress(new EndpointAddress(datagram.getAddress(), datagram.getPort()));
+//					msg.setPeerAddress(new InetSocketAddress(datagram.getAddress(), datagram.getPort()));
 					raw.setAddress(packet.getAddress());
 					raw.setPort(packet.getPort());
 
@@ -273,8 +291,8 @@ public class DTLSConnector extends ConnectorBase {
 
 //		RawData message = getNextOutgoing();
 		
-//		EndpointAddress peerAddress = message.getPeerAddress();
-		EndpointAddress peerAddress = message.getEndpointAddress();
+//		InetSocketAddress peerAddress = message.getPeerAddress();
+		InetSocketAddress peerAddress = message.getInetSocketAddress();
 		LOGGER.info("Send message to "+address);
 
 		DTLSSession session = dtlsSessions.get(peerAddress.toString());
@@ -475,7 +493,7 @@ public class DTLSConnector extends ConnectorBase {
 	 * @param peerAddress
 	 *            the peer's address.
 	 */
-	private void cancelPreviousFlight(EndpointAddress peerAddress) {
+	private void cancelPreviousFlight(InetSocketAddress peerAddress) {
 		DTLSFlight previousFlight = flights.get(peerAddress.toString());
 		if (previousFlight != null) {
 			previousFlight.getRetransmitTask().cancel();

@@ -30,8 +30,9 @@
  ******************************************************************************/
 package ch.ethz.inf.vs.scandium.dtls;
 
-import ch.inf.vs.californium.network.serializer.DatagramReader;
-import ch.inf.vs.californium.network.serializer.DatagramWriter;
+import ch.ethz.inf.vs.scandium.util.DatagramReader;
+import ch.ethz.inf.vs.scandium.util.DatagramWriter;
+
 
 /**
  * The server send this request after receiving a {@link ClientHello} message to

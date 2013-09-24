@@ -30,10 +30,10 @@
  ******************************************************************************/
 package ch.ethz.inf.vs.scandium.dtls;
 
+import java.net.InetSocketAddress;
 import java.security.MessageDigest;
 import java.security.SecureRandom;
 
-import ch.ethz.inf.vs.scandium.EndpointAddress;
 import ch.ethz.inf.vs.scandium.dtls.AlertMessage.AlertDescription;
 import ch.ethz.inf.vs.scandium.dtls.AlertMessage.AlertLevel;
 
@@ -56,7 +56,7 @@ public class ResumingServerHandshaker extends ServerHandshaker {
 	
 	// Constructor ////////////////////////////////////////////////////
 
-	public ResumingServerHandshaker(EndpointAddress endpointAddress, DTLSSession session) {
+	public ResumingServerHandshaker(InetSocketAddress endpointAddress, DTLSSession session) {
 		super(endpointAddress, session);
 		setSessionToResume(session);
 	}
