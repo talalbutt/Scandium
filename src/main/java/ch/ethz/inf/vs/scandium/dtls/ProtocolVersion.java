@@ -69,7 +69,7 @@ public class ProtocolVersion implements Comparable<ProtocolVersion> {
 		return major;
 	}
 
-	@Override
+	//@Override
 	public int compareTo(ProtocolVersion o) {
 		/*
 		 * Example, version 1.0 (254,255) is smaller than version 1.2 (254,253)

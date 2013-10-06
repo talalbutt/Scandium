@@ -70,7 +70,7 @@ public class ApplicationMessage implements DTLSMessage {
 	
 	// Serialization //////////////////////////////////////////////////
 
-	@Override
+	// @Override
 	public byte[] toByteArray() {
 		return data;
 	}

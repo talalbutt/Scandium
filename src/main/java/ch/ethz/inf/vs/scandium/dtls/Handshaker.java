@@ -811,7 +811,7 @@ public abstract class Handshaker {
 		// sort according to fragment offset
 		Collections.sort(fragments, new Comparator<FragmentedHandshakeMessage>() {
 
-			@Override
+			// @Override
 			public int compare(FragmentedHandshakeMessage o1, FragmentedHandshakeMessage o2) {
 				if (o1.getFragmentOffset() == o2.getFragmentOffset()) {
 					return 0;

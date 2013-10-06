@@ -289,7 +289,7 @@ public class AlertMessage implements DTLSMessage {
 
 	// Serialization //////////////////////////////////////////////////
 
-	@Override
+	// @Override
 	public byte[] toByteArray() {
 		DatagramWriter writer = new DatagramWriter();
 

@@ -101,7 +101,7 @@ public class ChangeCipherSpecMessage implements DTLSMessage {
 	
 	// Serialization //////////////////////////////////////////////////
 
-	@Override
+	// @Override
 	public byte[] toByteArray() {
 		DatagramWriter writer = new DatagramWriter();
 		writer.write(CCSProtocolType.getCode(), CCS_BITS);

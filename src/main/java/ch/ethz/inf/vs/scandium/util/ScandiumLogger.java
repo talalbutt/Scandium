@@ -16,6 +16,8 @@ import java.util.logging.StreamHandler;
  */
 public class ScandiumLogger {
 
+	private static Logger SCANDIUM_ROOT;
+	
 	static {
 		initializeLogger();
 	}
@@ -33,6 +35,7 @@ public class ScandiumLogger {
 		if (clazz == null) throw new NullPointerException();
 		StackTraceElement[] trace = Thread.currentThread().getStackTrace();
 		Logger logger = Logger.getLogger(clazz.getName());
+		logger.setParent(SCANDIUM_ROOT);
 		String caller = trace[2].getClassName();
 		if (!caller.equals(clazz.getName()))
 			logger.info("Note that class "+caller+" uses the logger of class "+clazz.getName());
@@ -57,8 +60,7 @@ public class ScandiumLogger {
 	 */
 	private static void initializeLogger() {
 		try {
-			LogManager.getLogManager().reset();
-			Logger logger = Logger.getLogger("");
+			Logger logger = Logger.getLogger(ScandiumLogger.class.getName());
 			logger.addHandler(new StreamHandler(System.out, new Formatter() {
 			    @Override
 			    public synchronized String format(LogRecord record) {
@@ -94,6 +96,7 @@ public class ScandiumLogger {
 				}
 			);
 			logger.info("Logging format: Thread-ID | Level | Message - Class | Line No. | Method name | Thread name");
+			SCANDIUM_ROOT = logger;
 		} catch (Throwable t) {
 			t.printStackTrace();
 		}

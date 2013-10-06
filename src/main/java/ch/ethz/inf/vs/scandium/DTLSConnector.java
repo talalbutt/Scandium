@@ -41,6 +41,11 @@ import ch.ethz.inf.vs.scandium.util.ScandiumLogger;
 
 public class DTLSConnector extends ConnectorBase {
 	
+	/*
+	 * Note: DTLSConnector can also implement the interface Connector instead of
+	 * extending ConnectorBase
+	 */
+	
 	private final static Logger LOGGER = ScandiumLogger.getLogger(DTLSConnector.class);
 
 	/////////////////
@@ -65,13 +70,13 @@ public class DTLSConnector extends ConnectorBase {
 	private Timer timer = new Timer(true); // run as daemon
 	
 	/** Storing sessions according to peer-addresses */
-	private ConcurrentHashMap<String, DTLSSession> dtlsSessions = new ConcurrentHashMap<>();
+	private ConcurrentHashMap<String, DTLSSession> dtlsSessions = new ConcurrentHashMap<String, DTLSSession>();
 
 	/** Storing handshakers according to peer-addresses. */
-	private ConcurrentHashMap<String, Handshaker> handshakers = new ConcurrentHashMap<>();
+	private ConcurrentHashMap<String, Handshaker> handshakers = new ConcurrentHashMap<String, Handshaker>();
 
 	/** Storing flights according to peer-addresses. */
-	private ConcurrentHashMap<String, DTLSFlight> flights = new ConcurrentHashMap<>();
+	private ConcurrentHashMap<String, DTLSFlight> flights = new ConcurrentHashMap<String, DTLSFlight>();
 	
 	public DTLSConnector(InetSocketAddress address) {
 		super(address);
