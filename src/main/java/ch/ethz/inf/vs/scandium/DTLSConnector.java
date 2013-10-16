@@ -296,8 +296,7 @@ public class DTLSConnector extends ConnectorBase {
 
 //		RawData message = getNextOutgoing();
 		
-//		InetSocketAddress peerAddress = message.getPeerAddress();
-		InetSocketAddress peerAddress = message.getInetSocketAddress();
+		InetSocketAddress peerAddress = message.getEndpointAddress();
 		LOGGER.info("Send message to "+address);
 
 		DTLSSession session = dtlsSessions.get(peerAddress.toString());
@@ -510,6 +509,11 @@ public class DTLSConnector extends ConnectorBase {
 	@Override
 	public String getName() {
 		return "DTLS";
+	}
+
+	public InetSocketAddress getAddress() {
+		if (socket == null) return getLocalAddr();
+		else return new InetSocketAddress(socket.getLocalAddress(), socket.getLocalPort());
 	}
 	
 	private class RetransmitTask extends TimerTask {
