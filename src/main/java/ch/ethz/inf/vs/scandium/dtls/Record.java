@@ -33,7 +33,6 @@ package ch.ethz.inf.vs.scandium.dtls;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import ch.ethz.inf.vs.scandium.dtls.AlertMessage.AlertDescription;
@@ -118,7 +117,7 @@ public class Record {
 	}
 
 	/**
-	 * Called when creating a record after receiving a message.
+	 * Called when creating a record after receiving a {@link Message}.
 	 * 
 	 * @param type
 	 *            the type
@@ -343,7 +342,7 @@ public class Record {
 		// The explicit nonce is 8 bytes long
 		byte[] explicitNonceReceived = reader.readBytes(8);
 		if (!Arrays.equals(explicitNonce, explicitNonceReceived)) {
-			LOG.log(Level.SEVERE, "The received explicit nonce did not match the expected explicit nonce: \nReceived: " + ByteArrayUtils.toHexString(explicitNonceReceived) + "\nExpected: " + ByteArrayUtils.toHexString(explicitNonce), new RuntimeException());
+			LOG.info("The received explicit nonce did not match the expected explicit nonce: \nReceived: " + ByteArrayUtils.toHexString(explicitNonceReceived) + "\nExpected: " + ByteArrayUtils.toHexString(explicitNonce));
 		}
 
 		byte[] decrypted = CCMBlockCipher.decrypt(key, nonce, additionalData, reader.readBytesLeft(), 8);

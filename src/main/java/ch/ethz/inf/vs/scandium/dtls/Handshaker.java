@@ -59,7 +59,6 @@ import ch.ethz.inf.vs.elements.RawData;
 import ch.ethz.inf.vs.scandium.DTLSConnector;
 import ch.ethz.inf.vs.scandium.dtls.AlertMessage.AlertDescription;
 import ch.ethz.inf.vs.scandium.dtls.AlertMessage.AlertLevel;
-import ch.ethz.inf.vs.scandium.dtls.CertSendExtension.CertType;
 import ch.ethz.inf.vs.scandium.dtls.CipherSuite.KeyExchangeAlgorithm;
 import ch.ethz.inf.vs.scandium.util.ScProperties;
 import ch.ethz.inf.vs.scandium.util.ScandiumLogger;
@@ -738,24 +737,6 @@ public abstract class Handshaker {
 		}
 
 		return trustedCertificates;
-	}
-
-	
-	/**
-	 * Checks whether the peer supports receiving RawPublicKey certificates.
-	 * 
-	 * @param extension
-	 *            the peer's {@link CertReceiveExtension}.
-	 * @return <code>true</code> if the peer supports RawPublicKey
-	 *         certificates, <code>false</code> otherwise.
-	 */
-	protected boolean sendRawPublicKey(CertReceiveExtension extension) {
-		for (CertType certType : extension.getCertTypes()) {
-			if (certType == CertType.RAW_PUBLIC_KEY) {
-				return true;
-			}
-		}
-		return false;
 	}
 	
 	/**
