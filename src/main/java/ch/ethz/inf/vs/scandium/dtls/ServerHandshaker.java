@@ -46,7 +46,6 @@ import ch.ethz.inf.vs.scandium.dtls.CertificateRequest.ClientCertificateType;
 import ch.ethz.inf.vs.scandium.dtls.CertificateRequest.HashAlgorithm;
 import ch.ethz.inf.vs.scandium.dtls.CertificateRequest.SignatureAlgorithm;
 import ch.ethz.inf.vs.scandium.dtls.CertificateTypeExtension.CertificateType;
-import ch.ethz.inf.vs.scandium.dtls.CipherSuite.KeyExchangeAlgorithm;
 import ch.ethz.inf.vs.scandium.dtls.SupportedPointFormatsExtension.ECPointFormat;
 import ch.ethz.inf.vs.scandium.util.ScProperties;
 
@@ -480,11 +479,14 @@ public class ServerHandshaker extends Handshaker {
 			 * algorithm)
 			 */
 			ServerKeyExchange serverKeyExchange = null;
+			SignatureAndHashAlgorithm signatureAndHashAlgorithm = null;
 			switch (keyExchange) {
 			case EC_DIFFIE_HELLMAN:
+				// TODO SHA256withECDSA is default but should be configurable
+				signatureAndHashAlgorithm = new SignatureAndHashAlgorithm(HashAlgorithm.SHA256, SignatureAlgorithm.ECDSA);
 				int namedCurveId = negotiateNamedCurve(clientHello.getSupportedEllipticCurvesExtension());
 				ecdhe = new ECDHECryptography(namedCurveId);
-				serverKeyExchange = new ECDHServerKeyExchange(ecdhe, privateKey, clientRandom, serverRandom, namedCurveId);
+				serverKeyExchange = new ECDHServerKeyExchange(signatureAndHashAlgorithm, ecdhe, privateKey, clientRandom, serverRandom, namedCurveId);
 				break;
 
 			case PSK:
@@ -495,6 +497,7 @@ public class ServerHandshaker extends Handshaker {
 				// NULL does not require the server's key exchange message
 				break;
 			}
+			
 			if (serverKeyExchange != null) {
 				flight.addMessage(wrapMessage(serverKeyExchange));
 				md.update(serverKeyExchange.toByteArray());
@@ -504,13 +507,13 @@ public class ServerHandshaker extends Handshaker {
 			/*
 			 * Fourth, send CertificateRequest for client (if required)
 			 */
-			if (clientAuthenticationRequired && keyExchange != KeyExchangeAlgorithm.PSK) {
+			if (clientAuthenticationRequired && signatureAndHashAlgorithm!=null) {
 
 				CertificateRequest certificateRequest = new CertificateRequest();
 				
 				// TODO make this variable, reasonable values
 				certificateRequest.addCertificateType(ClientCertificateType.ECDSA_SIGN);
-				certificateRequest.addSignatureAlgorithm(new SignatureAndHashAlgorithm(HashAlgorithm.SHA256, SignatureAlgorithm.ECDSA));
+				certificateRequest.addSignatureAlgorithm(new SignatureAndHashAlgorithm(signatureAndHashAlgorithm.getHash(), signatureAndHashAlgorithm.getSignature()));
 				certificateRequest.addCertificateAuthorities(loadTrustedCertificates());
 
 				flight.addMessage(wrapMessage(certificateRequest));

@@ -49,6 +49,8 @@ import java.util.logging.Logger;
 
 import ch.ethz.inf.vs.scandium.dtls.AlertMessage.AlertDescription;
 import ch.ethz.inf.vs.scandium.dtls.AlertMessage.AlertLevel;
+import ch.ethz.inf.vs.scandium.dtls.CertificateRequest.HashAlgorithm;
+import ch.ethz.inf.vs.scandium.dtls.CertificateRequest.SignatureAlgorithm;
 import ch.ethz.inf.vs.scandium.util.DatagramReader;
 import ch.ethz.inf.vs.scandium.util.DatagramWriter;
 import ch.ethz.inf.vs.scandium.util.ScandiumLogger;
@@ -74,14 +76,9 @@ public class ECDHServerKeyExchange extends ServerKeyExchange {
 	private static final int CURVE_TYPE_BITS = 8;
 	private static final int NAMED_CURVE_BITS = 16;
 	private static final int PUBLIC_LENGTH_BITS = 8;
+	private static final int HASH_ALGORITHM_BITS = 8;
+	private static final int SIGNATURE_ALGORITHM_BITS = 8;
 	private static final int SIGNATURE_LENGTH_BITS = 16;
-
-	/**
-	 * The name of the ECDSA signature algorithm. See also <a href=
-	 * "http://docs.oracle.com/javase/7/docs/technotes/guides/security/StandardNames.html#Signature"
-	 * >Signature Algorithms</a>.
-	 */
-	private static final String SIGNATURE_INSTANCE = "SHA256withECDSA";
 
 	/**
 	 * The algorithm name to generate elliptic curve keypairs. See also <a href=
@@ -112,6 +109,9 @@ public class ECDHServerKeyExchange extends ServerKeyExchange {
 
 	private byte[] signatureEncoded = null;
 
+	/** The signature and hash algorithm which must be included into the digitally-signed struct. */
+	private SignatureAndHashAlgorithm signatureAndHashAlgorithm;
+
 	// TODO right now only named curve is supported
 	private int curveType = NAMED_CURVE;
 
@@ -131,8 +131,10 @@ public class ECDHServerKeyExchange extends ServerKeyExchange {
 	 * @param namedCurveId
 	 *            the named curve's id which will be used for the ECDH.
 	 */
-	public ECDHServerKeyExchange(ECDHECryptography ecdhe, PrivateKey serverPrivateKey, Random clientRandom, Random serverRandom, int namedCurveId) {
+	public ECDHServerKeyExchange(SignatureAndHashAlgorithm signatureAndHashAlgorithm, ECDHECryptography ecdhe, PrivateKey serverPrivateKey, Random clientRandom, Random serverRandom, int namedCurveId) {
 
+		this.signatureAndHashAlgorithm = signatureAndHashAlgorithm;
+		
 		try {
 			publicKey = ecdhe.getPublicKey();
 			ECParameterSpec parameters = publicKey.getParams();
@@ -145,7 +147,7 @@ public class ECDHServerKeyExchange extends ServerKeyExchange {
 			// See http://tools.ietf.org/html/rfc4492#section-2.2
 			// These parameters MUST be signed with ECDSA using the private key
 			// corresponding to the public key in the server's Certificate.
-			Signature signature = Signature.getInstance(SIGNATURE_INSTANCE);
+			Signature signature = Signature.getInstance(this.signatureAndHashAlgorithm.toString());
 			signature.initSign(serverPrivateKey);
 
 			updateSignature(signature, clientRandom, serverRandom);
@@ -166,7 +168,8 @@ public class ECDHServerKeyExchange extends ServerKeyExchange {
 	 * @param signatureEncoded
 	 *            the signature (encoded)
 	 */
-	public ECDHServerKeyExchange(int curveId, byte[] pointEncoded, byte[] signatureEncoded) {
+	public ECDHServerKeyExchange(SignatureAndHashAlgorithm signatureAndHashAlgorithm, int curveId, byte[] pointEncoded, byte[] signatureEncoded) {
+		this.signatureAndHashAlgorithm = signatureAndHashAlgorithm;
 		this.curveId = curveId;
 		this.pointEncoded = pointEncoded;
 		this.signatureEncoded = signatureEncoded;
@@ -188,14 +191,17 @@ public class ECDHServerKeyExchange extends ServerKeyExchange {
 			// http://tools.ietf.org/html/rfc4492#section-5.4
 			writer.write(NAMED_CURVE, CURVE_TYPE_BITS);
 			writer.write(curveId, NAMED_CURVE_BITS);
-			int length = pointEncoded.length;
-			writer.write(length, PUBLIC_LENGTH_BITS);
+			writer.write(pointEncoded.length, PUBLIC_LENGTH_BITS);
 			writer.writeBytes(pointEncoded);
 
 			// signature
 			if (signatureEncoded != null) {
-				length = signatureEncoded.length;
-				writer.write(length, SIGNATURE_LENGTH_BITS);
+				// according to http://tools.ietf.org/html/rfc5246#section-A.7 the
+				// signature algorithm must also be included
+				writer.write(signatureAndHashAlgorithm.getHash().getCode(), HASH_ALGORITHM_BITS);
+				writer.write(signatureAndHashAlgorithm.getSignature().getCode(), SIGNATURE_ALGORITHM_BITS);
+				
+				writer.write(signatureEncoded.length, SIGNATURE_LENGTH_BITS);
 				writer.writeBytes(signatureEncoded);
 			}
 			break;
@@ -224,14 +230,21 @@ public class ECDHServerKeyExchange extends ServerKeyExchange {
 			byte[] pointEncoded = reader.readBytes(length);
 
 			byte[] bytesLeft = reader.readBytesLeft();
+			
+			// default is SHA256withECDSA
+			SignatureAndHashAlgorithm signAndHash = new SignatureAndHashAlgorithm(HashAlgorithm.SHA256, SignatureAlgorithm.ECDSA);
+			
 			byte[] signatureEncoded = null;
 			if (bytesLeft.length > 0) {
 				reader = new DatagramReader(bytesLeft);
+				int hashAlgorithm = reader.read(HASH_ALGORITHM_BITS);
+				int signatureAlgorithm = reader.read(SIGNATURE_ALGORITHM_BITS);
+				signAndHash = new SignatureAndHashAlgorithm(hashAlgorithm, signatureAlgorithm);
 				length = reader.read(SIGNATURE_LENGTH_BITS);
 				signatureEncoded = reader.readBytes(length);
 			}
 
-			return new ECDHServerKeyExchange(curveId, pointEncoded, signatureEncoded);
+			return new ECDHServerKeyExchange(signAndHash, curveId, pointEncoded, signatureEncoded);
 
 		default:
 			LOG.severe("Unknown curve type: " + curveType);
@@ -253,7 +266,7 @@ public class ECDHServerKeyExchange extends ServerKeyExchange {
 		
 		case NAMED_CURVE:
 			// the signature length field uses 2 bytes, if a signature available
-			int signatureLength = (signatureEncoded == null) ? 0 : 2 + signatureEncoded.length;
+			int signatureLength = (signatureEncoded == null) ? 0 : 2 + 2 + signatureEncoded.length;
 			length = 4 + pointEncoded.length + signatureLength;
 			break;
 
@@ -285,7 +298,7 @@ public class ECDHServerKeyExchange extends ServerKeyExchange {
 		}
 		boolean verified = false;
 		try {
-			Signature signature = Signature.getInstance(SIGNATURE_INSTANCE);
+			Signature signature = Signature.getInstance(signatureAndHashAlgorithm.toString());
 			signature.initVerify(serverPublicKey);
 
 			updateSignature(signature, clientRandom, serverRandom);

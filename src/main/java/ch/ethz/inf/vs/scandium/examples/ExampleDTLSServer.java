@@ -69,10 +69,6 @@ public class ExampleDTLSServer {
 			this.connector = con;
 		}
 
-		public void sendData(RawData raw) {
-			connector.send(raw);
-		}
-
 		// @Override
 		public void receiveData(final RawData raw) {
 			if (raw.getAddress() == null)

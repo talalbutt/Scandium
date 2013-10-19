@@ -49,7 +49,7 @@ public class ExampleDTLSClient {
 	
 	public ExampleDTLSClient() {
 		dtlsConnector = new DTLSConnector(new InetSocketAddress(0));
-		dtlsConnector.setRawDataReceiver(new RawDataChannelImpl(dtlsConnector));
+		dtlsConnector.setRawDataReceiver(new RawDataChannelImpl());
 	}
 	
 	public void send() {
@@ -63,16 +63,6 @@ public class ExampleDTLSClient {
 	}
 	
 	private class RawDataChannelImpl implements RawDataChannel {
-		
-		private Connector connector;
-		
-		public RawDataChannelImpl(Connector con) {
-			this.connector = con;
-		}
-
-		public void sendData(RawData raw) {
-			connector.send(raw);
-		}
 
 		// @Override
 		public void receiveData(final RawData raw) {
