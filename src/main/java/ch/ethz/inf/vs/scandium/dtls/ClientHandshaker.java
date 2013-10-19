@@ -30,15 +30,21 @@
  ******************************************************************************/
 package ch.ethz.inf.vs.scandium.dtls;
 
+import java.io.FileInputStream;
+import java.io.InputStream;
 import java.net.InetSocketAddress;
+import java.security.KeyStore;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.security.interfaces.ECPublicKey;
 import java.security.spec.ECParameterSpec;
+import java.util.logging.Level;
 
 import ch.ethz.inf.vs.elements.RawData;
+import ch.ethz.inf.vs.scandium.DTLSConnector;
 import ch.ethz.inf.vs.scandium.dtls.AlertMessage.AlertDescription;
 import ch.ethz.inf.vs.scandium.dtls.AlertMessage.AlertLevel;
 import ch.ethz.inf.vs.scandium.dtls.CertificateTypeExtension.CertificateType;
@@ -103,6 +109,24 @@ public class ClientHandshaker extends Handshaker {
 	}
 
 	// Methods ////////////////////////////////////////////////////////
+	
+	/**
+	 * Loads the given keyStore (location specified in Californium.properties).
+	 * The keyStore must contain the private key and the corresponding
+	 * certificate (chain). The keyStore alias is expected to be "client".
+	 */
+	protected void loadKeyStore() {
+		try {
+			KeyStore keyStore = KeyStore.getInstance("JKS");
+			InputStream in = new FileInputStream(DTLSConnector.KEY_STORE_LOCATION);
+			keyStore.load(in, KEY_STORE_PASSWORD.toCharArray());
+
+			certificates = keyStore.getCertificateChain("client");
+			privateKey = (PrivateKey) keyStore.getKey("client", KEY_STORE_PASSWORD.toCharArray());
+		} catch (Exception e) {
+			LOG.log(Level.SEVERE, "Could not load the keystore.", e);
+		}
+	}
 
 	@Override
 	public synchronized DTLSFlight processMessage(Record record) throws HandshakeException {

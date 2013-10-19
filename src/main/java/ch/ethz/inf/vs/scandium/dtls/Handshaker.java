@@ -48,7 +48,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.crypto.SecretKey;
@@ -703,18 +702,7 @@ public abstract class Handshaker {
 	 * The keyStore must contain the private key and the corresponding
 	 * certificate (chain). The keyStore alias is expected to be "client".
 	 */
-	protected void loadKeyStore() {
-		try {
-			KeyStore keyStore = KeyStore.getInstance("JKS");
-			InputStream in = new FileInputStream(DTLSConnector.KEY_STORE_LOCATION);
-			keyStore.load(in, KEY_STORE_PASSWORD.toCharArray());
-
-			certificates = keyStore.getCertificateChain("client");
-			privateKey = (PrivateKey) keyStore.getKey("client", KEY_STORE_PASSWORD.toCharArray());
-		} catch (Exception e) {
-			LOG.log(Level.SEVERE, "Could not load the keystore.", e);
-		}
-	}
+	protected abstract void loadKeyStore();
 	
 	/**
 	 * Loads the trusted certificates.
