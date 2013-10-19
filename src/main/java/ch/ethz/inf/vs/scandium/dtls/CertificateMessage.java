@@ -330,7 +330,7 @@ public class CertificateMessage extends HandshakeMessage {
 
 		if (rawPublicKeyBytes == null) {
 			// the size of the certificate chain
-			writer.write(getMessageLength() - 3, CERTIFICATE_LIST_LENGTH);
+			writer.write(getMessageLength() - (CERTIFICATE_LIST_LENGTH/8), CERTIFICATE_LIST_LENGTH);
 			for (byte[] encoded : encodedChain) {
 				// the size of the current certificate
 				writer.write(encoded.length, CERTIFICATE_LENGTH_BITS);
@@ -351,6 +351,7 @@ public class CertificateMessage extends HandshakeMessage {
 		DatagramReader reader = new DatagramReader(byteArray);
 
 		int certificateChainLength = reader.read(CERTIFICATE_LENGTH_BITS);
+		
 		CertificateMessage message;
 		if (useRawPublicKey) {
 			int certificateLength = reader.read(CERTIFICATE_LENGTH_BITS);
@@ -364,12 +365,12 @@ public class CertificateMessage extends HandshakeMessage {
 				int certificateLength = reader.read(CERTIFICATE_LENGTH_BITS);
 				byte[] certificate = reader.readBytes(certificateLength);
 
-				// the size of the length and the actual length of the encoded
-				// certificate
-				certificateChainLength -= 3 + certificateLength;
+				// the size of the length and the actual length of the encoded certificate
+				certificateChainLength -= (CERTIFICATE_LENGTH_BITS/8) + certificateLength;
 
 				try {
 					if (certificateFactory == null) {
+						// doing this in try/catch
 						certificateFactory = CertificateFactory.getInstance("X.509");
 					}
 					Certificate cert = certificateFactory.generateCertificate(new ByteArrayInputStream(certificate));
@@ -377,11 +378,13 @@ public class CertificateMessage extends HandshakeMessage {
 				} catch (CertificateException e) {
 					LOG.severe("Could not generate the certificate.");
 					e.printStackTrace();
+					break;
 				}
 			}
 
 			message = new CertificateMessage(certs.toArray(new X509Certificate[certs.size()]), useRawPublicKey);
 		}
+		
 		return message;
 	}
 

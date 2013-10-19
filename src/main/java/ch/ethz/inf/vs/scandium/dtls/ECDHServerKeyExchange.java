@@ -177,6 +177,7 @@ public class ECDHServerKeyExchange extends ServerKeyExchange {
 
 	// Serialization //////////////////////////////////////////////////
 
+	// TODO this is called 4 times for Flight 4
 	@Override
 	public byte[] fragmentToByteArray() {
 		DatagramWriter writer = new DatagramWriter();

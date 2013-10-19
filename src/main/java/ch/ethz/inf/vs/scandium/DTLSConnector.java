@@ -49,19 +49,19 @@ public class DTLSConnector extends ConnectorBase {
 	
 	private final static Logger LOGGER = ScandiumLogger.getLogger(DTLSConnector.class);
 
-	/////////////////
-	// the maximum fragment size before DTLS fragmentation must be applied
 	public static final String KEY_STORE_LOCATION = ScProperties.std.getProperty("KEY_STORE_LOCATION".replace("/", File.pathSeparator));
 	public static final String TRUST_STORE_LOCATION = ScProperties.std.getProperty("TRUST_STORE_LOCATION".replace("/", File.pathSeparator));
 	
-	private int max_fragment_length = ScProperties.std.getInt("MAX_FRAGMENT_LENGTH");
+	private int maxFragmentLength = ScProperties.std.getInt("MAX_FRAGMENT_LENGTH");
+	
+	/** The overhead for the record header (13 bytes) and the handshake header (12 bytes) is 25 bytes */
+	private int maxPayloadSize = maxFragmentLength + 25;
 
-	// the initial timer value for retransmission; rfc6347, section: 4.2.4.1
+	/** The initial timer value for retransmission; rfc6347, section: 4.2.4.1 */
 	private int retransmission_timeout = ScProperties.std.getInt("RETRANSMISSION_TIMEOUT");
 	
-	// maximal number of retransmissions before the attempt to transmit a message is canceled
+	/** Maximal number of retransmissions before the attempt to transmit a message is canceled */
 	private int max_retransmit = ScProperties.std.getInt("MAX_RETRANSMIT");
-	/////////////////
 	
 	private final InetSocketAddress address;
 	
@@ -101,7 +101,7 @@ public class DTLSConnector extends ConnectorBase {
 	// TODO: We should not return null
 	@Override
 	protected RawData receiveNext() throws Exception {
-		byte[] buffer = new byte[1000];
+		byte[] buffer = new byte[maxPayloadSize];
 		DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
 		socket.receive(packet);
 		
@@ -115,7 +115,6 @@ public class DTLSConnector extends ConnectorBase {
 		byte[] data = Arrays.copyOfRange(packet.getData(), packet.getOffset(), packet.getLength());
 
 		try {
-			// TODO multiplex message types: DTLS or CoAP
 			List<Record> records = Record.fromByteArray(data);
 
 			for (Record record : records) {
@@ -400,9 +399,6 @@ public class DTLSConnector extends ConnectorBase {
 	
 	private void sendFlight(DTLSFlight flight) {
 		byte[] payload = new byte[] {};
-		// the overhead for the record header (13 bytes) and the handshake
-		// header (12 bytes) is 25 bytes
-		int maxPayloadSize = max_fragment_length + 25;
 		
 		// put as many records into one datagram as allowed by the block size
 		List<DatagramPacket> datagrams = new ArrayList<DatagramPacket>();
