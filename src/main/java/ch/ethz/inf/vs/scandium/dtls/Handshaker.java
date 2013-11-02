@@ -677,25 +677,6 @@ public abstract class Handshaker {
 			return false;
 		}
 	}
-
-	/**
-	 * Closes the current connection and returns the notify_close Alert message
-	 * wrapped in flight.
-	 * 
-	 * @return the close_notify message to indicate closing of the connection.
-	 */
-	protected DTLSFlight closeConnection() {
-		DTLSFlight flight = new DTLSFlight();
-
-		// TODO what to do here?
-		session.setActive(false);
-		DTLSMessage closeNotify = new AlertMessage(AlertLevel.WARNING, AlertDescription.CLOSE_NOTIFY);
-
-		flight.addMessage(wrapMessage(closeNotify));
-		flight.setRetransmissionNeeded(false);
-
-		return flight;
-	}
 	
 	/**
 	 * Loads the given keyStore (location specified in Californium.properties).

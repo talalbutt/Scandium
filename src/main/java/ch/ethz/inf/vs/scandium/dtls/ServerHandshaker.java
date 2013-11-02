@@ -155,21 +155,6 @@ public class ServerHandshaker extends Handshaker {
 		}
 
 		switch (record.getType()) {
-		case ALERT:
-			AlertMessage alert = (AlertMessage) record.getFragment();
-			switch (alert.getDescription()) {
-			case CLOSE_NOTIFY:
-				flight = closeConnection();
-				break;
-			case HANDSHAKE_FAILURE:
-				// TODO react accordingly
-				break;
-
-			default:
-				break;
-			}
-			break;
-
 		case CHANGE_CIPHER_SPEC:
 			record.getFragment();
 			setCurrentReadState();

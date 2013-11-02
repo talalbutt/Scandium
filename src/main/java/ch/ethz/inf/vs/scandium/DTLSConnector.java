@@ -84,6 +84,37 @@ public class DTLSConnector extends ConnectorBase {
 		this.address = address;
 	}
 	
+	/**
+	 * Close the DTLS session with the given peer.
+	 * 
+	 * @param peerAddress the remote endpoint of the session to close
+	 */
+	public void close(InetSocketAddress peerAddress) {
+		DTLSSession session = dtlsSessions.get(addressToKey(peerAddress));
+		
+		if (session != null) {
+			DTLSMessage closeNotify = new AlertMessage(AlertLevel.WARNING, AlertDescription.CLOSE_NOTIFY);
+			
+			DTLSFlight flight = new DTLSFlight();
+			flight.addMessage(new Record(ContentType.ALERT, session.getWriteEpoch(), session.getSequenceNumber(), closeNotify, session));
+			flight.setRetransmissionNeeded(false);
+			
+			cancelPreviousFlight(peerAddress);
+	
+			flight.setPeerAddress(peerAddress);
+			flight.setSession(session);
+	
+			if (flight.isRetransmissionNeeded()) {
+				flights.put(addressToKey(peerAddress), flight);
+				scheduleRetransmission(flight);
+			}
+	
+			sendFlight(flight);
+		} else {
+			LOGGER.warning("Session to close not found: " + peerAddress.toString());
+		}
+	}
+	
 	@Override
 	public synchronized void start() throws IOException {
 		socket = new DatagramSocket(address.getPort(), address.getAddress());
@@ -143,6 +174,34 @@ public class DTLSConnector extends ConnectorBase {
 					break;
 
 				case ALERT:
+					AlertMessage alert = (AlertMessage) record.getFragment();
+					switch (alert.getDescription()) {
+					case CLOSE_NOTIFY:
+						session.setActive(false);
+						
+						LOGGER.info("Received CLOSE_NOTIFY from " + peerAddress.toString());
+						
+						// server must reply with CLOSE_NOTIFY
+						if (!session.isClient()) {
+							DTLSMessage closeNotify = new AlertMessage(AlertLevel.WARNING, AlertDescription.CLOSE_NOTIFY);
+							flight = new DTLSFlight();
+							flight.addMessage(new Record(ContentType.ALERT, session.getWriteEpoch(), session.getSequenceNumber(), closeNotify, session));
+							flight.setRetransmissionNeeded(false);
+						}
+						break;
+					case HANDSHAKE_FAILURE:
+						LOGGER.warning("Handshake failure with " + peerAddress.toString());
+						
+						// cleaning up
+						cancelPreviousFlight(peerAddress);
+						dtlsSessions.remove(addressToKey(peerAddress));
+						handshakers.remove(addressToKey(peerAddress));
+						break;
+
+					default:
+						break;
+					}
+					break;
 				case CHANGE_CIPHER_SPEC:
 				case HANDSHAKE:
 //					LOGGER.info(" => handshaker: "+handshaker);
@@ -155,10 +214,10 @@ public class DTLSConnector extends ConnectorBase {
 						 * handshaker type
 						 */
 
-						HandshakeMessage message = (HandshakeMessage) record.getFragment();
+						HandshakeMessage handshake = (HandshakeMessage) record.getFragment();
 //						LOGGER.info("=> received message "+message);
 
-						switch (message.getMessageType()) {
+						switch (handshake.getMessageType()) {
 						case HELLO_REQUEST:
 							/*
 							 * Client side: server desires a re-handshake
@@ -186,9 +245,9 @@ public class DTLSConnector extends ConnectorBase {
 							 * full handshake with fresh session.
 							 */
 
-							if (!(message instanceof FragmentedHandshakeMessage)) {
+							if (!(handshake instanceof FragmentedHandshakeMessage)) {
 								// check if session identifier set
-								ClientHello clientHello = (ClientHello) message;
+								ClientHello clientHello = (ClientHello) handshake;
 								session = getSessionByIdentifier(clientHello.getSessionId().getSessionId());
 							}
 							
@@ -209,7 +268,7 @@ public class DTLSConnector extends ConnectorBase {
 							break;
 
 						default:
-							LOGGER.severe("Received unexpected first handshake message (type="+message.getMessageType()+") from " + peerAddress.toString() + ":\n" + message.toString());
+							LOGGER.severe("Received unexpected first handshake message (type="+handshake.getMessageType()+") from " + peerAddress.toString() + ":\n" + handshake.toString());
 							break;
 						}
 					}
@@ -289,7 +348,7 @@ public class DTLSConnector extends ConnectorBase {
 //		RawData message = getNextOutgoing();
 		
 		InetSocketAddress peerAddress = message.getEndpointAddress();
-		LOGGER.info("Send message to " + peerAddress);
+		LOGGER.info("Sending message to " + peerAddress);
 
 		DTLSSession session = dtlsSessions.get(addressToKey(peerAddress));
 		
@@ -316,10 +375,6 @@ public class DTLSConnector extends ConnectorBase {
 				// session to peer is active, send encrypted message
 				DTLSMessage fragment = new ApplicationMessage(message.getBytes());
 				encryptedMessage = new Record(ContentType.APPLICATION_DATA, session.getWriteEpoch(), session.getSequenceNumber(), fragment, session);
-
-			/*} else if (message.getRetransmissioned() > 0) {
-				// TODO when message retransmitted from TransactionLayer: what to do?
-				return;*/
 				
 			} else {
 				// try resuming session
