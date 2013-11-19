@@ -29,6 +29,8 @@ public class ScandiumLogger {
 	/** The level which each new logger will use */
 	private static Level level = null;
 	
+	private static Logger SCANDIUM_ROOT = Logger.getLogger(ScandiumLogger.class.getName());
+	
 	static {
 		initializeLogger();
 	}
@@ -45,13 +47,18 @@ public class ScandiumLogger {
 	public static Logger getLogger(Class<?> clazz) {
 		if (clazz == null) throw new NullPointerException();
 		StackTraceElement[] trace = Thread.currentThread().getStackTrace();
-		Logger logger = Logger.getLogger(clazz.getName());
+		Logger logger = getLogger0(clazz);
+		logger.setParent(SCANDIUM_ROOT);
 		if (level != null) logger.setLevel(level);
 		String caller = trace[2].getClassName();
 		if (!caller.equals(clazz.getName()))
 			logger.info("Note that class "+caller+" uses the logger of class "+clazz.getName());
 		californiumLoggers.add(logger);
 		return logger;
+	}
+	
+	private static Logger getLogger0(Class<?> clazz) {
+		return Logger.getLogger(clazz.getName());
 	}
 	
 	/**
@@ -72,8 +79,7 @@ public class ScandiumLogger {
 	 */
 	private static void initializeLogger() {
 		try {
-			LogManager.getLogManager().reset();
-			Logger logger = Logger.getLogger("");
+			SCANDIUM_ROOT.setUseParentHandlers(false);
 			
 			Handler handler = new StreamHandler(System.out, new Formatter() {
 			    @Override
@@ -115,12 +121,16 @@ public class ScandiumLogger {
 				}
 			};
 			handler.setLevel(Level.ALL);
-			logger.addHandler(handler);
-			logger.info("Logging format: Thread-ID | Level | Message - Class | Line No. | Method name | Thread name");
+			SCANDIUM_ROOT.addHandler(handler);
+//			logger.info("Logging format: Thread-ID | Level | Message - Class | Line No. | Method name | Thread name");
 
 		} catch (Throwable t) {
 			t.printStackTrace();
 		}
+	}
+	
+	public static void printLoggerFormat() {
+		SCANDIUM_ROOT.info("Logging format: Thread-ID | Level | Message - Class | Line No. | Method name | Thread name");
 	}
 	
 	/**
@@ -165,6 +175,12 @@ public class ScandiumLogger {
 		ScandiumLogger.level = level;
 		for (Logger logger:californiumLoggers)
 			logger.setLevel(level);
+	}
+	
+	public static void setLoggerLevel(Level level, Class<?>... classes) {
+		for (Class<?> clazz:classes) {
+			getLogger0(clazz).setLevel(level);
+		}
 	}
 
 	/**
