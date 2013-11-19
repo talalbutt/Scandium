@@ -82,6 +82,8 @@ public class DTLSConnector extends ConnectorBase {
 	public DTLSConnector(InetSocketAddress address) {
 		super(address);
 		this.address = address;
+		
+		LOGGER.setLevel(Level.ALL);
 	}
 	
 	/**
@@ -347,7 +349,7 @@ public class DTLSConnector extends ConnectorBase {
 
 //		RawData message = getNextOutgoing();
 		
-		InetSocketAddress peerAddress = message.getEndpointAddress();
+		InetSocketAddress peerAddress = message.getInetSocketAddress();
 		LOGGER.info("Sending message to " + peerAddress);
 
 		DTLSSession session = dtlsSessions.get(addressToKey(peerAddress));
@@ -516,21 +518,23 @@ public class DTLSConnector extends ConnectorBase {
 		if (flight.getRetransmitTask() != null) {
 			flight.getRetransmitTask().cancel();
 		}
-
-		// create new retransmission task
-		flight.setRetransmitTask(new RetransmitTask(flight));
-
-		// calculate timeout using exponential back-off
-		if (flight.getTimeout() == 0) {
-			// use initial timeout
-			flight.setTimeout(retransmission_timeout);
-		} else {
-			// double timeout
-			flight.incrementTimeout();
+		
+		if (flight.isRetransmissionNeeded()) {
+			// create new retransmission task
+			flight.setRetransmitTask(new RetransmitTask(flight));
+	
+			// calculate timeout using exponential back-off
+			if (flight.getTimeout() == 0) {
+				// use initial timeout
+				flight.setTimeout(retransmission_timeout);
+			} else {
+				// double timeout
+				flight.incrementTimeout();
+			}
+	
+			// schedule retransmission task
+			timer.schedule(flight.getRetransmitTask(), flight.getTimeout());
 		}
-
-		// schedule retransmission task
-		timer.schedule(flight.getRetransmitTask(), flight.getTimeout());
 	}
 	
 	/**

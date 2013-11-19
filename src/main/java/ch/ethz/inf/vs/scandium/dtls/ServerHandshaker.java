@@ -550,6 +550,7 @@ public class ServerHandshaker extends Handshaker {
 			// either first time, or cookies did not match
 			HelloVerifyRequest helloVerifyRequest = new HelloVerifyRequest(new ProtocolVersion(), generateCookie(message));
 			flight.addMessage(wrapMessage(helloVerifyRequest));
+			flight.setRetransmissionNeeded(false);
 		}
 		return flight;
 	}
