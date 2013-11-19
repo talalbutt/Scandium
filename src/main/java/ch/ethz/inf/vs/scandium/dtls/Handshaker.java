@@ -56,8 +56,6 @@ import javax.crypto.spec.SecretKeySpec;
 
 import ch.ethz.inf.vs.elements.RawData;
 import ch.ethz.inf.vs.scandium.DTLSConnector;
-import ch.ethz.inf.vs.scandium.dtls.AlertMessage.AlertDescription;
-import ch.ethz.inf.vs.scandium.dtls.AlertMessage.AlertLevel;
 import ch.ethz.inf.vs.scandium.dtls.CipherSuite.KeyExchangeAlgorithm;
 import ch.ethz.inf.vs.scandium.util.ScProperties;
 import ch.ethz.inf.vs.scandium.util.ScandiumLogger;
@@ -103,9 +101,9 @@ public abstract class Handshaker {
 	protected static Map<String, byte[]> sharedKeys = new HashMap<String, byte[]>();
 
 	static {
-		sharedKeys.put("TEST", new byte[] { 0x73, 0x65, 0x63, 0x72, 0x65, 0x74, 0x50, 0x53, 0x4b });
-		sharedKeys.put("Client_identity", new byte[] { 0x73, 0x65, 0x63, 0x72, 0x65, 0x74, 0x50, 0x53, 0x4b });
-		sharedKeys.put("001", new byte[] { 0x01, 0x02, 0x03, 0x04, 0x05, 0x06 });
+		sharedKeys.put("password", "sesame".getBytes());
+		sharedKeys.put("Client", "Client".getBytes());
+		sharedKeys.put("Server", "Server".getBytes());
 		sharedKeys.put("PSK_Identity", new byte[] { 0x01, 0x02, 0x03, 0x04, 0x05, 0x06 });
 	}
 
