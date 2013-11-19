@@ -114,7 +114,6 @@ public class ClientHello extends HandshakeMessage {
 	 * @param version
 	 * @param secureRandom
 	 */
-	@SuppressWarnings("unused")
 	public ClientHello(ProtocolVersion version, SecureRandom secureRandom) {
 		this.clientVersion = version;
 		this.random = new Random(secureRandom);
@@ -125,6 +124,7 @@ public class ClientHello extends HandshakeMessage {
 		// the supported elliptic curves
 		List<Integer> curves = Arrays.asList(
 				ECDHServerKeyExchange.NAMED_CURVE_INDEX.get("secp256r1"),
+				ECDHServerKeyExchange.NAMED_CURVE_INDEX.get("secp384r1"),
 				ECDHServerKeyExchange.NAMED_CURVE_INDEX.get("secp521r1"));
 		HelloExtension supportedCurvesExtension = new SupportedEllipticCurvesExtension(curves);
 		this.extensions.addExtension(supportedCurvesExtension);
@@ -134,21 +134,35 @@ public class ClientHello extends HandshakeMessage {
 		HelloExtension supportedPointFormatsExtension = new SupportedPointFormatsExtension(formats);
 		this.extensions.addExtension(supportedPointFormatsExtension);
 		
-		// the supported certificate types
-		CertificateTypeExtension certificateTypeExtension = new CertificateTypeExtension(true);
-		if (ScProperties.std.getBool("USE_RAW_PUBLIC_KEY")) { 
-			certificateTypeExtension.addCertificateType(CertificateType.RAW_PUBLIC_KEY);
-			certificateTypeExtension.addCertificateType(CertificateType.X_509);
+		// the certificate types the client is able to provide to the server
+		CertificateTypeExtension clientCertificateType = new ClientCertificateTypeExtension(true);
+		if (ScProperties.std.getBool("USE_RAW_PUBLIC_KEY")) {
+			clientCertificateType.addCertificateType(CertificateType.RAW_PUBLIC_KEY);
 		} else {
 			// the client supports rawPublicKeys but prefers X.509 certificates
 			
-			// http://tools.ietf.org/html/draft-ietf-tls-oob-pubkey-03#section-3.1:
+			// http://tools.ietf.org/html/draft-ietf-tls-oob-pubkey-07#section-3:
 			// this extension MUST be omitted if the client only supports X.509 certificates
-			certificateTypeExtension.addCertificateType(CertificateType.X_509);
-			certificateTypeExtension.addCertificateType(CertificateType.RAW_PUBLIC_KEY);
+			clientCertificateType.addCertificateType(CertificateType.X_509);
+			clientCertificateType.addCertificateType(CertificateType.RAW_PUBLIC_KEY);
 		}
 		
-		this.extensions.addExtension(certificateTypeExtension);
+		// the type of certificates the client is able to process when provided by the server
+		CertificateTypeExtension serverCertificateType = new ServerCertificateTypeExtension(true);
+		if (ScProperties.std.getBool("USE_RAW_PUBLIC_KEY")) {
+			serverCertificateType.addCertificateType(CertificateType.RAW_PUBLIC_KEY);
+			serverCertificateType.addCertificateType(CertificateType.X_509);
+		} else {
+			// the client supports rawPublicKeys but prefers X.509 certificates
+			
+			// http://tools.ietf.org/html/draft-ietf-tls-oob-pubkey-07#section-3:
+			// this extension MUST be omitted if the client only supports X.509 certificates
+			serverCertificateType.addCertificateType(CertificateType.X_509);
+			serverCertificateType.addCertificateType(CertificateType.RAW_PUBLIC_KEY);
+		}
+		
+		this.extensions.addExtension(clientCertificateType);
+		this.extensions.addExtension(serverCertificateType);
 	}
 
 	/**
@@ -380,43 +394,7 @@ public class ClientHello extends HandshakeMessage {
 	}
 	
 	/**
-	 * Gets the client's 'cert-receive' extension if available. As described in
-	 * <a href="http://tools.ietf.org/html/draft-ietf-tls-oob-pubkey-04">
-	 * Out-of-Band Public Key Validation</a>.
-	 * 
-	 * @return the 'cert-receive' extensions, if available, <code>null</code>
-	 *         otherwise.
-	 */
-	public CertReceiveExtension getCertReceiveExtension() {
-		if (extensions != null) {
-			List<HelloExtension> exts = extensions.getExtensions();
-			for (HelloExtension helloExtension : exts) {
-				if (helloExtension instanceof CertReceiveExtension) {
-					return (CertReceiveExtension) helloExtension;
-				}
-			}
-		}
-		return null;
-	}
-	
-	/**
-	 * 
-	 * @return the 'cert-send' extension, if available, <code>null</code>
-	 *         otherwise.
-	 */
-	public CertSendExtension getCertSendExtension() {
-		if (extensions != null) {
-			List<HelloExtension> exts = extensions.getExtensions();
-			for (HelloExtension helloExtension : exts) {
-				if (helloExtension instanceof CertSendExtension) {
-					return (CertSendExtension) helloExtension;
-				}
-			}
-		}
-		return null;
-	}
-
-	/**
+	 * Gets the supported elliptic curves.
 	 * 
 	 * @return the client's supported elliptic curves extension if available,
 	 *         otherwise <code>null</code>.
@@ -438,12 +416,29 @@ public class ClientHello extends HandshakeMessage {
 	 * @return the client's certificate type extension if available,
 	 *         otherwise <code>null</code>.
 	 */
-	public CertificateTypeExtension getCertificateTypeExtension() {
+	public ClientCertificateTypeExtension getClientCertificateTypeExtension() {
 		if (extensions != null) {
 			List<HelloExtension> exts = extensions.getExtensions();
 			for (HelloExtension helloExtension : exts) {
-				if (helloExtension instanceof CertificateTypeExtension) {
-					return (CertificateTypeExtension) helloExtension;
+				if (helloExtension instanceof ClientCertificateTypeExtension) {
+					return (ClientCertificateTypeExtension) helloExtension;
+				}
+			}
+		}
+		return null;
+	}
+	
+	/**
+	 * 
+	 * @return the client's certificate type extension if available,
+	 *         otherwise <code>null</code>.
+	 */
+	public ServerCertificateTypeExtension getServerCertificateTypeExtension() {
+		if (extensions != null) {
+			List<HelloExtension> exts = extensions.getExtensions();
+			for (HelloExtension helloExtension : exts) {
+				if (helloExtension instanceof ServerCertificateTypeExtension) {
+					return (ServerCertificateTypeExtension) helloExtension;
 				}
 			}
 		}

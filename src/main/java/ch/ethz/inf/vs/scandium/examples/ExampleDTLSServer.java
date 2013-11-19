@@ -33,12 +33,14 @@ package ch.ethz.inf.vs.scandium.examples;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.util.logging.Level;
 
 import ch.ethz.inf.vs.elements.Connector;
 import ch.ethz.inf.vs.elements.RawData;
 import ch.ethz.inf.vs.elements.RawDataChannel;
 import ch.ethz.inf.vs.scandium.DTLSConnector;
 import ch.ethz.inf.vs.scandium.util.ScProperties;
+import ch.ethz.inf.vs.scandium.util.ScandiumLogger;
 
 
 public class ExampleDTLSServer {
@@ -69,10 +71,6 @@ public class ExampleDTLSServer {
 			this.connector = con;
 		}
 
-		public void sendData(RawData raw) {
-			connector.send(raw);
-		}
-
 		// @Override
 		public void receiveData(final RawData raw) {
 			if (raw.getAddress() == null)
@@ -86,6 +84,8 @@ public class ExampleDTLSServer {
 	}
 	
 	public static void main(String[] args) {
+		
+		//ScandiumLogger.setLoggerLevel(Level.WARNING);
 		
 		ExampleDTLSServer server = new ExampleDTLSServer();
 		server.start();

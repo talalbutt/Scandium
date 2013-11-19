@@ -34,25 +34,26 @@ package ch.ethz.inf.vs.scandium.examples;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.util.logging.Level;
 
-import ch.ethz.inf.vs.elements.Connector;
 import ch.ethz.inf.vs.elements.RawData;
 import ch.ethz.inf.vs.elements.RawDataChannel;
 import ch.ethz.inf.vs.scandium.DTLSConnector;
 import ch.ethz.inf.vs.scandium.util.ScProperties;
+import ch.ethz.inf.vs.scandium.util.ScandiumLogger;
 
 public class ExampleDTLSClient {
 
 	public static final int DEFAULT_PORT = ScProperties.std.getInt("DEFAULT_PORT");
 	
-	private Connector dtlsConnector;
+	private DTLSConnector dtlsConnector;
 	
 	public ExampleDTLSClient() {
 		dtlsConnector = new DTLSConnector(new InetSocketAddress(0));
-		dtlsConnector.setRawDataReceiver(new RawDataChannelImpl(dtlsConnector));
+		dtlsConnector.setRawDataReceiver(new RawDataChannelImpl());
 	}
 	
-	public void send() {
+	public void test() {
 		try {
 			dtlsConnector.start();
 			dtlsConnector.send(new RawData("HELLO WORLD".getBytes(), InetAddress.getByName("localhost") , DEFAULT_PORT));
@@ -63,25 +64,14 @@ public class ExampleDTLSClient {
 	}
 	
 	private class RawDataChannelImpl implements RawDataChannel {
-		
-		private Connector connector;
-		
-		public RawDataChannelImpl(Connector con) {
-			this.connector = con;
-		}
-
-		public void sendData(RawData raw) {
-			connector.send(raw);
-		}
 
 		// @Override
 		public void receiveData(final RawData raw) {
-			if (raw.getAddress() == null)
-				throw new NullPointerException();
-			if (raw.getPort() == 0)
-				throw new NullPointerException();
 			
 			System.out.println(new String(raw.getBytes()));
+			
+			dtlsConnector.close(new InetSocketAddress("localhost" , DEFAULT_PORT));
+			
 			System.exit(0);
 		}
 
@@ -89,8 +79,10 @@ public class ExampleDTLSClient {
 	
 	public static void main(String[] args) {
 
+		//ScandiumLogger.setLoggerLevel(Level.WARNING);
+		
 		ExampleDTLSClient client = new ExampleDTLSClient();
-		client.send();
+		client.test();
 	}
 
 }

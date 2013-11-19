@@ -31,22 +31,27 @@
 
 package ch.ethz.inf.vs.scandium.dtls;
 
+import java.io.FileInputStream;
+import java.io.InputStream;
 import java.net.InetSocketAddress;
+import java.security.KeyStore;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Level;
 
+import ch.ethz.inf.vs.scandium.DTLSConnector;
 import ch.ethz.inf.vs.scandium.dtls.AlertMessage.AlertDescription;
 import ch.ethz.inf.vs.scandium.dtls.AlertMessage.AlertLevel;
 import ch.ethz.inf.vs.scandium.dtls.CertificateRequest.ClientCertificateType;
 import ch.ethz.inf.vs.scandium.dtls.CertificateRequest.HashAlgorithm;
 import ch.ethz.inf.vs.scandium.dtls.CertificateRequest.SignatureAlgorithm;
 import ch.ethz.inf.vs.scandium.dtls.CertificateTypeExtension.CertificateType;
-import ch.ethz.inf.vs.scandium.dtls.CipherSuite.KeyExchangeAlgorithm;
 import ch.ethz.inf.vs.scandium.dtls.SupportedPointFormatsExtension.ECPointFormat;
 import ch.ethz.inf.vs.scandium.util.ScProperties;
 
@@ -106,6 +111,32 @@ public class ServerHandshaker extends Handshaker {
 	}
 
 	// Methods ////////////////////////////////////////////////////////
+	
+	/**
+	 * Loads the given keyStore (location specified in Californium.properties).
+	 * The keyStore must contain the private key and the corresponding
+	 * certificate (chain). The keyStore alias is expected to be "client".
+	 */
+	protected void loadKeyStore() {
+		try {
+			KeyStore keyStore = KeyStore.getInstance("JKS");
+			InputStream in = new FileInputStream(DTLSConnector.KEY_STORE_LOCATION);
+			keyStore.load(in, KEY_STORE_PASSWORD.toCharArray());
+
+			certificates = keyStore.getCertificateChain("server");
+			
+			
+//			StringBuilder sb = new StringBuilder();
+//			for (Certificate cert : certificates) {
+//				sb.append("\t\t\tCertificate: " + cert.toString() + "\n");
+//			}
+//			LOG.severe("*********LOADED *******: " + sb.toString());
+			
+			privateKey = (PrivateKey) keyStore.getKey("server", KEY_STORE_PASSWORD.toCharArray());
+		} catch (Exception e) {
+			LOG.log(Level.SEVERE, "Could not load the keystore.", e);
+		}
+	}
 
 	@Override
 	public synchronized DTLSFlight processMessage(Record record) throws HandshakeException {
@@ -124,21 +155,6 @@ public class ServerHandshaker extends Handshaker {
 		}
 
 		switch (record.getType()) {
-		case ALERT:
-			AlertMessage alert = (AlertMessage) record.getFragment();
-			switch (alert.getDescription()) {
-			case CLOSE_NOTIFY:
-				flight = closeConnection();
-				break;
-			case HANDSHAKE_FAILURE:
-				// TODO react accordingly
-				break;
-
-			default:
-				break;
-			}
-			break;
-
 		case CHANGE_CIPHER_SPEC:
 			record.getFragment();
 			setCurrentReadState();
@@ -227,7 +243,7 @@ public class ServerHandshaker extends Handshaker {
 				flight = processMessage(nextMessage);
 			}
 		}
-		LOG.info("DTLS Message processed (" + endpointAddress.toString() + "):" + /*"\n" +*/ "record.toString()" + " return flight "+flight); // remove " to see record
+		LOG.info("DTLS Message processed (" + endpointAddress.toString() + "):\n" + record.toString());
 		return flight;
 	}
 	
@@ -401,19 +417,37 @@ public class ServerHandshaker extends Handshaker {
 			
 			
 			HelloExtensions extensions = null;
-			CertificateTypeExtension certificateTypeExtension = clientHello.getCertificateTypeExtension();
-			if (certificateTypeExtension != null) {
+			ClientCertificateTypeExtension clientCertificateTypeExtension = clientHello.getClientCertificateTypeExtension();
+			if (clientCertificateTypeExtension != null) {
 				// choose certificate type from client's list
-				CertificateType certType = negotiateCertificateType(certificateTypeExtension);
+				CertificateType certType = negotiateCertificateType(clientCertificateTypeExtension);
 				extensions = new HelloExtensions();
-				CertificateTypeExtension ext1 = new CertificateTypeExtension(false);
+				// the certificate type requested from the client
+				CertificateTypeExtension ext1 = new ClientCertificateTypeExtension(false);
 				ext1.addCertificateType(certType);
 				
 				extensions.addExtension(ext1);
 				
 				if (certType == CertificateType.RAW_PUBLIC_KEY) {
-					session.setSendRawPublicKey(true);
 					session.setReceiveRawPublicKey(true);
+				}
+			}
+			
+			CertificateTypeExtension serverCertificateTypeExtension = clientHello.getServerCertificateTypeExtension();
+			if (serverCertificateTypeExtension != null) {
+				// choose certificate type from client's list
+				CertificateType certType = negotiateCertificateType(serverCertificateTypeExtension);
+				if (extensions == null) {
+					extensions = new HelloExtensions();
+				}
+				// the certificate type found in the attached certificate payload
+				CertificateTypeExtension ext2 = new ServerCertificateTypeExtension(false);
+				ext2.addCertificateType(certType);
+				
+				extensions.addExtension(ext2);
+				
+				if (certType == CertificateType.RAW_PUBLIC_KEY) {
+					session.setSendRawPublicKey(true);
 				}
 			}
 			
@@ -425,8 +459,8 @@ public class ServerHandshaker extends Handshaker {
 				if (extensions == null) {
 					extensions = new HelloExtensions();
 				}
-				HelloExtension ext2 = new SupportedPointFormatsExtension(formats);
-				extensions.addExtension(ext2);
+				HelloExtension ext3 = new SupportedPointFormatsExtension(formats);
+				extensions.addExtension(ext3);
 			}
 			
 			
@@ -462,11 +496,14 @@ public class ServerHandshaker extends Handshaker {
 			 * algorithm)
 			 */
 			ServerKeyExchange serverKeyExchange = null;
+			SignatureAndHashAlgorithm signatureAndHashAlgorithm = null;
 			switch (keyExchange) {
 			case EC_DIFFIE_HELLMAN:
+				// TODO SHA256withECDSA is default but should be configurable
+				signatureAndHashAlgorithm = new SignatureAndHashAlgorithm(HashAlgorithm.SHA256, SignatureAlgorithm.ECDSA);
 				int namedCurveId = negotiateNamedCurve(clientHello.getSupportedEllipticCurvesExtension());
 				ecdhe = new ECDHECryptography(namedCurveId);
-				serverKeyExchange = new ECDHServerKeyExchange(ecdhe, privateKey, clientRandom, serverRandom, namedCurveId);
+				serverKeyExchange = new ECDHServerKeyExchange(signatureAndHashAlgorithm, ecdhe, privateKey, clientRandom, serverRandom, namedCurveId);
 				break;
 
 			case PSK:
@@ -477,6 +514,7 @@ public class ServerHandshaker extends Handshaker {
 				// NULL does not require the server's key exchange message
 				break;
 			}
+			
 			if (serverKeyExchange != null) {
 				flight.addMessage(wrapMessage(serverKeyExchange));
 				md.update(serverKeyExchange.toByteArray());
@@ -486,13 +524,13 @@ public class ServerHandshaker extends Handshaker {
 			/*
 			 * Fourth, send CertificateRequest for client (if required)
 			 */
-			if (clientAuthenticationRequired && keyExchange != KeyExchangeAlgorithm.PSK) {
+			if (clientAuthenticationRequired && signatureAndHashAlgorithm!=null) {
 
 				CertificateRequest certificateRequest = new CertificateRequest();
 				
 				// TODO make this variable, reasonable values
 				certificateRequest.addCertificateType(ClientCertificateType.ECDSA_SIGN);
-				certificateRequest.addSignatureAlgorithm(new SignatureAndHashAlgorithm(HashAlgorithm.SHA256, SignatureAlgorithm.ECDSA));
+				certificateRequest.addSignatureAlgorithm(new SignatureAndHashAlgorithm(signatureAndHashAlgorithm.getHash(), signatureAndHashAlgorithm.getSignature()));
 				certificateRequest.addCertificateAuthorities(loadTrustedCertificates());
 
 				flight.addMessage(wrapMessage(certificateRequest));

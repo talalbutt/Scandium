@@ -48,7 +48,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.crypto.SecretKey;
@@ -59,7 +58,6 @@ import ch.ethz.inf.vs.elements.RawData;
 import ch.ethz.inf.vs.scandium.DTLSConnector;
 import ch.ethz.inf.vs.scandium.dtls.AlertMessage.AlertDescription;
 import ch.ethz.inf.vs.scandium.dtls.AlertMessage.AlertLevel;
-import ch.ethz.inf.vs.scandium.dtls.CertSendExtension.CertType;
 import ch.ethz.inf.vs.scandium.dtls.CipherSuite.KeyExchangeAlgorithm;
 import ch.ethz.inf.vs.scandium.util.ScProperties;
 import ch.ethz.inf.vs.scandium.util.ScandiumLogger;
@@ -679,43 +677,13 @@ public abstract class Handshaker {
 			return false;
 		}
 	}
-
-	/**
-	 * Closes the current connection and returns the notify_close Alert message
-	 * wrapped in flight.
-	 * 
-	 * @return the close_notify message to indicate closing of the connection.
-	 */
-	protected DTLSFlight closeConnection() {
-		DTLSFlight flight = new DTLSFlight();
-
-		// TODO what to do here?
-		session.setActive(false);
-		DTLSMessage closeNotify = new AlertMessage(AlertLevel.WARNING, AlertDescription.CLOSE_NOTIFY);
-
-		flight.addMessage(wrapMessage(closeNotify));
-		flight.setRetransmissionNeeded(false);
-
-		return flight;
-	}
 	
 	/**
 	 * Loads the given keyStore (location specified in Californium.properties).
 	 * The keyStore must contain the private key and the corresponding
 	 * certificate (chain). The keyStore alias is expected to be "client".
 	 */
-	protected void loadKeyStore() {
-		try {
-			KeyStore keyStore = KeyStore.getInstance("JKS");
-			InputStream in = new FileInputStream(DTLSConnector.KEY_STORE_LOCATION);
-			keyStore.load(in, KEY_STORE_PASSWORD.toCharArray());
-
-			certificates = keyStore.getCertificateChain("client");
-			privateKey = (PrivateKey) keyStore.getKey("client", KEY_STORE_PASSWORD.toCharArray());
-		} catch (Exception e) {
-			LOG.log(Level.SEVERE, "Could not load the keystore.", e);
-		}
-	}
+	protected abstract void loadKeyStore();
 	
 	/**
 	 * Loads the trusted certificates.
@@ -738,24 +706,6 @@ public abstract class Handshaker {
 		}
 
 		return trustedCertificates;
-	}
-
-	
-	/**
-	 * Checks whether the peer supports receiving RawPublicKey certificates.
-	 * 
-	 * @param extension
-	 *            the peer's {@link CertReceiveExtension}.
-	 * @return <code>true</code> if the peer supports RawPublicKey
-	 *         certificates, <code>false</code> otherwise.
-	 */
-	protected boolean sendRawPublicKey(CertReceiveExtension extension) {
-		for (CertType certType : extension.getCertTypes()) {
-			if (certType == CertType.RAW_PUBLIC_KEY) {
-				return true;
-			}
-		}
-		return false;
 	}
 	
 	/**
