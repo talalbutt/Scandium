@@ -1,15 +1,41 @@
-Scandium
-========
-
 Scandium (Sc) Security for Californium
+======================================
+
+[![Build Status](https://api.travis-ci.org/mkovatsc/Scandium.png?branch=master)](https://travis-ci.org/mkovatsc/Scandium)
 
 General
 -------
 
 Scandium (Sc) is a DTLS 1.2 implementation for the Californium (Cf) CoAP framework.
-It uses Cf's `Connector` interface which is a socket-like API to send and receive
-raw data. Scandium (Sc) can also be used standalone, i.e. without Cf's CoAP
-implementation on top.
+It uses the [element-connector](https://github.com/mkovatsc/element-connector)
+interface, which is a socket-like API to send and receive raw data and allows
+the modularization of Californium (Cf). Hence, Scandium (Sc) can also be used
+standalone, i.e. without Cf's CoAP implementation on top.
+
+Maven
+-----
+
+Use `mvn clean install` in the Cf root directory to build everything.
+Standalone JARs of the examples will be copied to ./run/.
+(For convenience they are directly included in the Git repository.)
+
+The Maven repositories are:
+
+* [https://github.com/mkovatsc/maven/raw/master/releases/](https://github.com/mkovatsc/maven/raw/master/releases/)
+* [https://github.com/mkovatsc/maven/raw/master/snapshots/](https://github.com/mkovatsc/maven/raw/master/snapshots/)
+
+Eclipse
+-------
+
+The project also includes the project files for Eclipse. Make sure to have the
+following before importing the Californium (Cf) projects:
+
+* [Eclipse EGit](http://www.eclipse.org/egit/)
+* [m2e - Maven Integration for Eclipse](http://www.eclipse.org/m2e/)
+* UTF-8 workspace text file encoding (Preferences &raquo; General &raquo; Workspace)
+
+Then choose *[Import... &raquo; Git &raquo; Projects from Git &raquo; Local]*
+to import Californium into Eclipse.
 
 Included Certificates
 ---------------------
