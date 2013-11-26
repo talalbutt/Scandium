@@ -3,9 +3,6 @@ Scandium (Sc) Security for Californium
 
 [![Build Status](https://api.travis-ci.org/mkovatsc/Scandium.png?branch=master)](https://travis-ci.org/mkovatsc/Scandium)
 
-General
--------
-
 Scandium (Sc) is a DTLS 1.2 implementation for the Californium (Cf) CoAP framework.
 It uses the [element-connector](https://github.com/mkovatsc/element-connector)
 interface, which is a socket-like API to send and receive raw data and allows
