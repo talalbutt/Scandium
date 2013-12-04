@@ -26,7 +26,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  * 
- * This file is part of the Californium (Cf) CoAP framework.
+ * This file is part of the Scandium (Sc) Security for Californium.
  ******************************************************************************/
 package ch.ethz.inf.vs.scandium.dtls;
 
@@ -41,7 +41,6 @@ import ch.ethz.inf.vs.scandium.dtls.SupportedPointFormatsExtension.ECPointFormat
 import ch.ethz.inf.vs.scandium.util.DatagramReader;
 import ch.ethz.inf.vs.scandium.util.DatagramWriter;
 import ch.ethz.inf.vs.scandium.util.ScProperties;
-import ch.ethz.inf.vs.scandium.util.ScandiumLogger;
 
 /**
  * When a client first connects to a server, it is required to send the
@@ -56,7 +55,7 @@ public class ClientHello extends HandshakeMessage {
 
 	// Logging ///////////////////////////////////////////////////////////
 
-	protected static final Logger LOG = ScandiumLogger.getLogger(ClientHello.class);
+	protected static final Logger LOGGER = Logger.getLogger(ClientHello.class.getCanonicalName());
 
 	// DTLS-specific constants ///////////////////////////////////////////
 

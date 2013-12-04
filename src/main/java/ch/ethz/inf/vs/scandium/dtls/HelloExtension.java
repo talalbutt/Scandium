@@ -26,7 +26,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  * 
- * This file is part of the Californium (Cf) CoAP framework.
+ * This file is part of the Scandium (Sc) Security for Californium.
  ******************************************************************************/
 
 package ch.ethz.inf.vs.scandium.dtls;
@@ -37,7 +37,6 @@ import ch.ethz.inf.vs.scandium.dtls.AlertMessage.AlertDescription;
 import ch.ethz.inf.vs.scandium.dtls.AlertMessage.AlertLevel;
 import ch.ethz.inf.vs.scandium.dtls.HelloExtensions.ExtensionType;
 import ch.ethz.inf.vs.scandium.util.DatagramWriter;
-import ch.ethz.inf.vs.scandium.util.ScandiumLogger;
 
 /**
  * 
@@ -53,7 +52,7 @@ public abstract class HelloExtension {
 
 	// Logging ///////////////////////////////////////////////////////////
 
-	protected static final Logger LOG = ScandiumLogger.getLogger(HelloExtension.class);
+	protected static final Logger LOGGER = Logger.getLogger(HelloExtension.class.getCanonicalName());
 
 	// DTLS-specific constants ////////////////////////////////////////
 

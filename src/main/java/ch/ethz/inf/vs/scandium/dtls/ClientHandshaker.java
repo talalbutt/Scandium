@@ -26,7 +26,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  * 
- * This file is part of the Californium (Cf) CoAP framework.
+ * This file is part of the Scandium (Sc) Security for Californium.
  ******************************************************************************/
 package ch.ethz.inf.vs.scandium.dtls;
 
@@ -124,7 +124,7 @@ public class ClientHandshaker extends Handshaker {
 			certificates = keyStore.getCertificateChain("client");
 			privateKey = (PrivateKey) keyStore.getKey("client", KEY_STORE_PASSWORD.toCharArray());
 		} catch (Exception e) {
-			LOG.log(Level.SEVERE, "Could not load the keystore.", e);
+			LOGGER.log(Level.SEVERE, "Could not load the keystore.", e);
 		}
 	}
 
@@ -191,7 +191,7 @@ public class ClientHandshaker extends Handshaker {
 					break;
 					
 				case NULL:
-					LOG.info("Received unexpected ServerKeyExchange message in NULL key exchange mode.");
+					LOGGER.info("Received unexpected ServerKeyExchange message in NULL key exchange mode.");
 					break;
 
 				default:
@@ -237,7 +237,7 @@ public class ClientHandshaker extends Handshaker {
 			}
 		}
 
-		LOG.info("DTLS Message processed (" + endpointAddress.toString() + "):\n" + record.toString());
+		LOGGER.info("DTLS Message processed (" + endpointAddress.toString() + "):\n" + record.toString());
 		return flight;
 	}
 
@@ -533,7 +533,7 @@ public class ClientHandshaker extends Handshaker {
 			try {
 				mdWithClientFinished = (MessageDigest) md.clone();
 			} catch (CloneNotSupportedException e) {
-				LOG.severe("Clone not supported.");
+				LOGGER.severe("Clone not supported.");
 				e.printStackTrace();
 			}
 
@@ -547,7 +547,7 @@ public class ClientHandshaker extends Handshaker {
 			handshakeHash = mdWithClientFinished.digest();
 
 		} catch (NoSuchAlgorithmException e) {
-			LOG.severe("No such Message Digest Algorithm available.");
+			LOGGER.severe("No such Message Digest Algorithm available.");
 			e.printStackTrace();
 		}
 

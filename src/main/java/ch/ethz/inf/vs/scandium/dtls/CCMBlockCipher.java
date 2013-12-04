@@ -26,7 +26,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  * 
- * This file is part of the Californium (Cf) CoAP framework.
+ * This file is part of the Scandium (Sc) Security for Californium.
  ******************************************************************************/
 
 package ch.ethz.inf.vs.scandium.dtls;
@@ -42,7 +42,6 @@ import javax.crypto.spec.SecretKeySpec;
 import ch.ethz.inf.vs.scandium.dtls.AlertMessage.AlertDescription;
 import ch.ethz.inf.vs.scandium.dtls.AlertMessage.AlertLevel;
 import ch.ethz.inf.vs.scandium.util.DatagramWriter;
-import ch.ethz.inf.vs.scandium.util.ScandiumLogger;
 
 /**
  * A generic authenticated encryption block cipher mode which uses the 128-bit
@@ -56,7 +55,7 @@ public final class CCMBlockCipher {
 
 	// Logging ////////////////////////////////////////////////////////
 
-	private static final Logger LOG = ScandiumLogger.getLogger(CCMBlockCipher.class);
+	private static final Logger LOGGER = Logger.getLogger(CCMBlockCipher.class.getCanonicalName());
 
 	// Members ////////////////////////////////////////////////////////
 
@@ -138,7 +137,7 @@ public final class CCMBlockCipher {
 			 */
 			mac = computeCbcMac(nonce, m, a, cipher, numAuthenticationBytes);
 		} catch (Exception e) {
-			LOG.severe("Could not decrypt the message.");
+			LOGGER.severe("Could not decrypt the message.");
 			e.printStackTrace();
 			return new byte[] {};
 		}
@@ -217,7 +216,7 @@ public final class CCMBlockCipher {
 
 			return c;
 		} catch (Exception e) {
-			LOG.severe("Could not encrypt the message.");
+			LOGGER.severe("Could not encrypt the message.");
 			e.printStackTrace();
 			return new byte[] {};
 		}

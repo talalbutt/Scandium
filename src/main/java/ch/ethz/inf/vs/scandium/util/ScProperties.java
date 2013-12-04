@@ -53,7 +53,7 @@ import ch.ethz.inf.vs.scandium.dtls.CipherSuite;
  */
 public class ScProperties extends java.util.Properties {
 
-	private static final Logger LOG = ScandiumLogger.getLogger(ScProperties.class);
+	private static final Logger LOG = Logger.getLogger(ScProperties.class.getCanonicalName());
 
 	/**
 	 * auto-generated to eliminate warning

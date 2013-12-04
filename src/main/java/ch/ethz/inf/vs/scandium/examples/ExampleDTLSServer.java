@@ -38,12 +38,18 @@ import java.util.logging.Level;
 import ch.ethz.inf.vs.elements.Connector;
 import ch.ethz.inf.vs.elements.RawData;
 import ch.ethz.inf.vs.elements.RawDataChannel;
+
 import ch.ethz.inf.vs.scandium.DTLSConnector;
+import ch.ethz.inf.vs.scandium.ScandiumLogger;
 import ch.ethz.inf.vs.scandium.util.ScProperties;
-import ch.ethz.inf.vs.scandium.util.ScandiumLogger;
 
 
 public class ExampleDTLSServer {
+
+	static {
+		ScandiumLogger.initializeLogger();
+		ScandiumLogger.setLoggerLevel(Level.ALL);
+	}
 
 	public static final int DEFAULT_PORT = ScProperties.std.getInt("DEFAULT_PORT");
 	
@@ -85,9 +91,14 @@ public class ExampleDTLSServer {
 	
 	public static void main(String[] args) {
 		
-		//ScandiumLogger.setLoggerLevel(Level.WARNING);
-		
 		ExampleDTLSServer server = new ExampleDTLSServer();
 		server.start();
+		
+		try {
+			System.in.read();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 }

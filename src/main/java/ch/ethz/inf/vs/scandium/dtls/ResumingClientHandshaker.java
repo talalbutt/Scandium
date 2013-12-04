@@ -26,7 +26,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  * 
- * This file is part of the Californium (Cf) CoAP framework.
+ * This file is part of the Scandium (Sc) Security for Californium.
  ******************************************************************************/
 package ch.ethz.inf.vs.scandium.dtls;
 
@@ -64,7 +64,7 @@ public class ResumingClientHandshaker extends ClientHandshaker {
 			// we already sent the last flight, but the client did not receive
 			// it, since we received its finished message again, so we
 			// retransmit our last flight
-			LOG.info("Received server's finished message again, retransmit the last flight.");
+			LOGGER.info("Received server's finished message again, retransmit the last flight.");
 			return lastFlight;
 		}
 
@@ -121,7 +121,7 @@ public class ResumingClientHandshaker extends ClientHandshaker {
 				flight = processMessage(nextMessage);
 			}
 		}
-		LOG.info("DTLS Message processed (" + endpointAddress.toString() + "):\n" + record.toString());
+		LOGGER.info("DTLS Message processed (" + endpointAddress.toString() + "):\n" + record.toString());
 		return flight;
 	}
 
@@ -154,7 +154,7 @@ public class ResumingClientHandshaker extends ClientHandshaker {
 			// finished message
 			mdWithServerFinish = (MessageDigest) md.clone();
 		} catch (Exception e) {
-			LOG.severe("Clone not supported.");
+			LOGGER.severe("Clone not supported.");
 			e.printStackTrace();
 		}
 		mdWithServerFinish.update(message.toByteArray());

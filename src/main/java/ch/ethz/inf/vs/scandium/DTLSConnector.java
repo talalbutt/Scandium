@@ -38,7 +38,6 @@ import ch.ethz.inf.vs.scandium.dtls.ResumingServerHandshaker;
 import ch.ethz.inf.vs.scandium.dtls.ServerHandshaker;
 import ch.ethz.inf.vs.scandium.dtls.ServerHello;
 import ch.ethz.inf.vs.scandium.util.ScProperties;
-import ch.ethz.inf.vs.scandium.util.ScandiumLogger;
 
 public class DTLSConnector extends ConnectorBase {
 	
@@ -47,7 +46,7 @@ public class DTLSConnector extends ConnectorBase {
 	 * extending ConnectorBase
 	 */
 	
-	private final static Logger LOGGER = ScandiumLogger.getLogger(DTLSConnector.class);
+	private final static Logger LOGGER = Logger.getLogger(DTLSConnector.class.getCanonicalName());
 
 	public static final String KEY_STORE_LOCATION = ScProperties.std.getProperty("KEY_STORE_LOCATION".replace("/", File.pathSeparator));
 	public static final String TRUST_STORE_LOCATION = ScProperties.std.getProperty("TRUST_STORE_LOCATION".replace("/", File.pathSeparator));
@@ -82,8 +81,6 @@ public class DTLSConnector extends ConnectorBase {
 	public DTLSConnector(InetSocketAddress address) {
 		super(address);
 		this.address = address;
-		
-		LOGGER.setLevel(Level.ALL);
 	}
 	
 	/**
@@ -142,7 +139,7 @@ public class DTLSConnector extends ConnectorBase {
 			return null;
 
 		InetSocketAddress peerAddress = new InetSocketAddress(packet.getAddress(), packet.getPort());
-//		LOGGER.info(" => find handshaker for key "+peerAddress.toString());
+		LOGGER.finer(" => find handshaker for key "+peerAddress.toString());
 		DTLSSession session = dtlsSessions.get(addressToKey(peerAddress));
 		Handshaker handshaker = handshakers.get(addressToKey(peerAddress));
 		byte[] data = Arrays.copyOfRange(packet.getData(), packet.getOffset(), packet.getLength());
@@ -156,7 +153,7 @@ public class DTLSConnector extends ConnectorBase {
 				RawData raw = null;
 
 				ContentType contentType = record.getType();
-//				LOGGER.info(" => contentType: "+contentType);
+				LOGGER.finer(" => contentType: "+contentType);
 				DTLSFlight flight = null;
 				switch (contentType) {
 				case APPLICATION_DATA:
@@ -171,7 +168,6 @@ public class DTLSConnector extends ConnectorBase {
 					handshakers.remove(addressToKey(peerAddress));
 
 					ApplicationMessage applicationData = (ApplicationMessage) record.getFragment();
-//					msg = Message.fromByteArray(applicationData.getData());
 					raw = new RawData(applicationData.getData());
 					break;
 
@@ -206,7 +202,7 @@ public class DTLSConnector extends ConnectorBase {
 					break;
 				case CHANGE_CIPHER_SPEC:
 				case HANDSHAKE:
-//					LOGGER.info(" => handshaker: "+handshaker);
+					LOGGER.finest(" => handshaker: "+handshaker);
 					if (handshaker == null) {
 						/*
 						 * A handshake message received, but no handshaker
@@ -217,7 +213,6 @@ public class DTLSConnector extends ConnectorBase {
 						 */
 
 						HandshakeMessage handshake = (HandshakeMessage) record.getFragment();
-//						LOGGER.info("=> received message "+message);
 
 						switch (handshake.getMessageType()) {
 						case HELLO_REQUEST:
@@ -340,14 +335,6 @@ public class DTLSConnector extends ConnectorBase {
 
 	@Override
 	protected void sendNext(RawData message) throws Exception {
-		// remember when this message was sent for the first time
-		// set timestamp only once in order
-		// to handle retransmissions correctly
-//		if (message.getTimestamp() == -1) {
-//			message.setTimestamp(System.nanoTime());
-//		}
-
-//		RawData message = getNextOutgoing();
 		
 		InetSocketAddress peerAddress = message.getInetSocketAddress();
 		LOGGER.info("Sending message to " + peerAddress);
@@ -494,7 +481,7 @@ public class DTLSConnector extends ConnectorBase {
 	
 	private void handleTimeout(DTLSFlight flight) {
 
-		// TODO Martin: Isn't this supposed to be done in the reliability layer? 
+		// set DTLS retransmission maximum
 		final int max = max_retransmit;
 
 		// check if limit of retransmissions reached

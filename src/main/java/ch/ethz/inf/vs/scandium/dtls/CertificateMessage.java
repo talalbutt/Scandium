@@ -26,7 +26,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  * 
- * This file is part of the Californium (Cf) CoAP framework.
+ * This file is part of the Scandium (Sc) Security for Californium.
  ******************************************************************************/
 package ch.ethz.inf.vs.scandium.dtls;
 
@@ -48,7 +48,6 @@ import ch.ethz.inf.vs.scandium.dtls.AlertMessage.AlertDescription;
 import ch.ethz.inf.vs.scandium.dtls.AlertMessage.AlertLevel;
 import ch.ethz.inf.vs.scandium.util.DatagramReader;
 import ch.ethz.inf.vs.scandium.util.DatagramWriter;
-import ch.ethz.inf.vs.scandium.util.ScandiumLogger;
 
 /**
  * The server MUST send a Certificate message whenever the agreed-upon key
@@ -63,7 +62,7 @@ public class CertificateMessage extends HandshakeMessage {
 
 	// Logging ///////////////////////////////////////////////////////////
 
-	private static final Logger LOG = ScandiumLogger.getLogger(CertificateMessage.class);
+	private static final Logger LOGGER = Logger.getLogger(CertificateMessage.class.getCanonicalName());
 
 	// DTLS-specific constants ///////////////////////////////////////////
 	
@@ -156,7 +155,7 @@ public class CertificateMessage extends HandshakeMessage {
 						messageLength += encoded.length + 3;
 					} catch (CertificateEncodingException e) {
 						encodedChain = null;
-						LOG.severe("Could not encode the certificate.");
+						LOGGER.severe("Could not encode the certificate.");
 						e.printStackTrace();
 					}
 				}
@@ -221,7 +220,7 @@ public class CertificateMessage extends HandshakeMessage {
 			
 			if (isSelfSigned(peerCertificate)) {
 				// TODO allow self-signed certificates?
-				LOG.info("Peer used self-signed certificate.");
+				LOGGER.info("Peer used self-signed certificate.");
 				return;
 			}
 
@@ -376,7 +375,7 @@ public class CertificateMessage extends HandshakeMessage {
 					Certificate cert = certificateFactory.generateCertificate(new ByteArrayInputStream(certificate));
 					certs.add(cert);
 				} catch (CertificateException e) {
-					LOG.severe("Could not generate the certificate.");
+					LOGGER.severe("Could not generate the certificate.");
 					e.printStackTrace();
 					break;
 				}
@@ -403,7 +402,7 @@ public class CertificateMessage extends HandshakeMessage {
 				// TODO make instance variable
 				publicKey = KeyFactory.getInstance("EC").generatePublic(publicKeySpec);
 			} catch (Exception e) {
-				LOG.severe("Could not reconstruct the server's public key.");
+				LOGGER.severe("Could not reconstruct the server's public key.");
 				e.printStackTrace();
 			}
 		}

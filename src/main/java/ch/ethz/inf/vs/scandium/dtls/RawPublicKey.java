@@ -26,7 +26,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  * 
- * This file is part of the Californium (Cf) CoAP framework.
+ * This file is part of the Scandium (Sc) Security for Californium.
  ******************************************************************************/
 package ch.ethz.inf.vs.scandium.dtls;
 
@@ -37,7 +37,6 @@ import java.util.logging.Logger;
 
 import ch.ethz.inf.vs.scandium.util.DatagramReader;
 import ch.ethz.inf.vs.scandium.util.DatagramWriter;
-import ch.ethz.inf.vs.scandium.util.ScandiumLogger;
 
 /**
  * A raw public key only contains the SubjectPublicKeyInfo structure instead of
@@ -54,7 +53,7 @@ public class RawPublicKey {
 
 	// Logging ///////////////////////////////////////////////////////////
 
-	private static final Logger LOG = ScandiumLogger.getLogger(RawPublicKey.class);
+	private static final Logger LOGGER = Logger.getLogger(RawPublicKey.class.getCanonicalName());
 
 	// Tags ///////////////////////////////////////////////////////////
 
@@ -180,7 +179,7 @@ public class RawPublicKey {
 				break;
 
 			default:
-				LOG.info("Unknown DER tag: " + tag);
+				LOGGER.info("Unknown DER tag: " + tag);
 				break;
 			}
 		}

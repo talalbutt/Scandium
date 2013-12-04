@@ -26,7 +26,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  * 
- * This file is part of the Californium (Cf) CoAP framework.
+ * This file is part of the Scandium (Sc) Security for Californium.
  ******************************************************************************/
 package ch.ethz.inf.vs.scandium.dtls;
 
@@ -35,7 +35,6 @@ import java.util.logging.Logger;
 import ch.ethz.inf.vs.scandium.dtls.CipherSuite.KeyExchangeAlgorithm;
 import ch.ethz.inf.vs.scandium.util.DatagramReader;
 import ch.ethz.inf.vs.scandium.util.DatagramWriter;
-import ch.ethz.inf.vs.scandium.util.ScandiumLogger;
 
 /**
  * Represents a general handshake message and defines the common header. The
@@ -50,7 +49,7 @@ public abstract class HandshakeMessage implements DTLSMessage {
 
 	// Logging ////////////////////////////////////////////////////////
 
-	private static final Logger LOG = ScandiumLogger.getLogger(HandshakeMessage.class);
+	private static final Logger LOGGER = Logger.getLogger(HandshakeMessage.class.getCanonicalName());
 
 	// CoAP-specific constants ////////////////////////////////////////
 
@@ -209,10 +208,10 @@ public abstract class HandshakeMessage implements DTLSMessage {
 				body = PSKServerKeyExchange.fromByteArray(bytesLeft);
 				break;
 			case NULL:
-				LOG.severe("Received unexpected ServerKeyExchange message in NULL key exchange mode.");
+				LOGGER.severe("Received unexpected ServerKeyExchange message in NULL key exchange mode.");
 				break;
 			default:
-				LOG.severe("Unknown key exchange algorithm: " + keyExchange);
+				LOGGER.severe("Unknown key exchange algorithm: " + keyExchange);
 				break;
 			}
 			
@@ -243,7 +242,7 @@ public abstract class HandshakeMessage implements DTLSMessage {
 				break;
 
 			default:
-				LOG.severe("Unknown key exchange algorithm: " + keyExchange);
+				LOGGER.severe("Unknown key exchange algorithm: " + keyExchange);
 				break;
 			}
 			
@@ -254,7 +253,7 @@ public abstract class HandshakeMessage implements DTLSMessage {
 			break;
 
 		default:
-			LOG.severe("Unknown handshake type: " + type);
+			LOGGER.severe("Unknown handshake type: " + type);
 			break;
 		}
 

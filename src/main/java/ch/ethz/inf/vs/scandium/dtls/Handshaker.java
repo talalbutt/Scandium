@@ -26,7 +26,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  * 
- * This file is part of the Californium (Cf) CoAP framework.
+ * This file is part of the Scandium (Sc) Security for Californium.
  ******************************************************************************/
 
 package ch.ethz.inf.vs.scandium.dtls;
@@ -58,7 +58,6 @@ import ch.ethz.inf.vs.elements.RawData;
 import ch.ethz.inf.vs.scandium.DTLSConnector;
 import ch.ethz.inf.vs.scandium.dtls.CipherSuite.KeyExchangeAlgorithm;
 import ch.ethz.inf.vs.scandium.util.ScProperties;
-import ch.ethz.inf.vs.scandium.util.ScandiumLogger;
 
 /**
  * The base class for the handshake protocol logic. Contains all the
@@ -71,7 +70,7 @@ public abstract class Handshaker {
 
 	// Logging ////////////////////////////////////////////////////////
 
-	protected static final Logger LOG = ScandiumLogger.getLogger(Handshaker.class);
+	protected static final Logger LOGGER = Logger.getLogger(Handshaker.class.getCanonicalName());
 
 	// Static members /////////////////////////////////////////////////
 
@@ -203,7 +202,7 @@ public abstract class Handshaker {
 		try {
 			this.md = MessageDigest.getInstance("SHA-256");
 		} catch (NoSuchAlgorithmException e) {
-			LOG.severe("Could not initialize the message digest algorithm.");
+			LOGGER.severe("Could not initialize the message digest algorithm.");
 			e.printStackTrace();
 		}
 	}
@@ -399,11 +398,11 @@ public abstract class Handshaker {
 				return doExpansion(md, secret, ByteArrayUtils.concatenate(label.getBytes(), seed), 148);
 
 			default:
-				LOG.severe("Unknwon label: " + labelId);
+				LOGGER.severe("Unknwon label: " + labelId);
 				return null;
 			}
 		} catch (NoSuchAlgorithmException e) {
-			LOG.severe("Message digest algorithm not available.");
+			LOGGER.severe("Message digest algorithm not available.");
 			e.printStackTrace();
 			return null;
 		}
@@ -640,7 +639,7 @@ public abstract class Handshaker {
 		int epoch = record.getEpoch();
 		if (epoch < session.getReadEpoch()) {
 			// discard old message
-			LOG.info("Discarded message from " + endpointAddress.toString() + " due to older epoch.");
+			LOGGER.info("Discarded message from " + endpointAddress.toString() + " due to older epoch.");
 			return false;
 		} else if (epoch == session.getReadEpoch()) {
 			DTLSMessage fragment = record.getFragment();
@@ -659,11 +658,11 @@ public abstract class Handshaker {
 					}
 					return true;
 				} else if (messageSeq > nextReceiveSeq) {
-					LOG.info("Queued newer message from same epoch, message_seq: " + messageSeq + ", next_receive_seq: " + nextReceiveSeq);
+					LOGGER.info("Queued newer message from same epoch, message_seq: " + messageSeq + ", next_receive_seq: " + nextReceiveSeq);
 					queuedMessages.add(record);
 					return false;
 				} else {
-					LOG.info("Discarded message due to older message_seq: " + messageSeq + ", next_receive_seq: " + nextReceiveSeq);
+					LOGGER.info("Discarded message due to older message_seq: " + messageSeq + ", next_receive_seq: " + nextReceiveSeq);
 					return false;
 				}
 			} else {
@@ -699,7 +698,7 @@ public abstract class Handshaker {
 			// TODO load multiple certificates?
 			trustedCertificates[0] = trustStore.getCertificate("root");
 		} catch (Exception e) {
-			LOG.severe("Could not load the trusted certificates.");
+			LOGGER.severe("Could not load the trusted certificates.");
 			e.printStackTrace();
 		}
 

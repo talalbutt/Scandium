@@ -26,7 +26,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  * 
- * This file is part of the Californium (Cf) CoAP framework.
+ * This file is part of the Scandium (Sc) Security for Californium.
  ******************************************************************************/
 package ch.ethz.inf.vs.scandium.dtls;
 
@@ -53,7 +53,6 @@ import ch.ethz.inf.vs.scandium.dtls.CertificateRequest.HashAlgorithm;
 import ch.ethz.inf.vs.scandium.dtls.CertificateRequest.SignatureAlgorithm;
 import ch.ethz.inf.vs.scandium.util.DatagramReader;
 import ch.ethz.inf.vs.scandium.util.DatagramWriter;
-import ch.ethz.inf.vs.scandium.util.ScandiumLogger;
 
 /**
  * 
@@ -69,7 +68,7 @@ public class ECDHServerKeyExchange extends ServerKeyExchange {
 
 	// Logging ////////////////////////////////////////////////////////
 
-	private static final Logger LOG = ScandiumLogger.getLogger(ECDHServerKeyExchange.class);
+	private static final Logger LOGGER = Logger.getLogger(ECDHServerKeyExchange.class.getCanonicalName());
 
 	// DTLS-specific constants ////////////////////////////////////////
 
@@ -208,7 +207,7 @@ public class ECDHServerKeyExchange extends ServerKeyExchange {
 			break;
 
 		default:
-			LOG.severe("Unknown curve type: " + curveId);
+			LOGGER.severe("Unknown curve type: " + curveId);
 			break;
 		}
 
@@ -248,7 +247,7 @@ public class ECDHServerKeyExchange extends ServerKeyExchange {
 			return new ECDHServerKeyExchange(signAndHash, curveId, pointEncoded, signatureEncoded);
 
 		default:
-			LOG.severe("Unknown curve type: " + curveType);
+			LOGGER.severe("Unknown curve type: " + curveType);
 			break;
 		}
 
@@ -272,7 +271,7 @@ public class ECDHServerKeyExchange extends ServerKeyExchange {
 			break;
 
 		default:
-			LOG.severe("Unknown curve type: " + curveType);
+			LOGGER.severe("Unknown curve type: " + curveType);
 			break;
 		}
 		
@@ -307,7 +306,7 @@ public class ECDHServerKeyExchange extends ServerKeyExchange {
 			verified = signature.verify(signatureEncoded);
 
 		} catch (Exception e) {
-			LOG.severe("Could not verify the server's signature.");
+			LOGGER.severe("Could not verify the server's signature.");
 			e.printStackTrace();
 		}
 		
@@ -355,7 +354,7 @@ public class ECDHServerKeyExchange extends ServerKeyExchange {
 			break;
 
 		default:
-			LOG.severe("Unknown curve type: " + curveId);
+			LOGGER.severe("Unknown curve type: " + curveId);
 			break;
 		}
 	}
@@ -375,7 +374,7 @@ public class ECDHServerKeyExchange extends ServerKeyExchange {
 				KeyFactory keyFactory = KeyFactory.getInstance(KEYPAIR_GENERATOR_INSTANCE);
 				publicKey = (ECPublicKey) keyFactory.generatePublic(new ECPublicKeySpec(point, params));
 			} catch (Exception e) {
-				LOG.severe("Could not reconstruct the server's ephemeral public key.");
+				LOGGER.severe("Could not reconstruct the server's ephemeral public key.");
 				e.printStackTrace();
 			}
 

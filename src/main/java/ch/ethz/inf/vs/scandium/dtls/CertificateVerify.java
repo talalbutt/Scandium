@@ -26,7 +26,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  * 
- * This file is part of the Californium (Cf) CoAP framework.
+ * This file is part of the Scandium (Sc) Security for Californium.
  ******************************************************************************/
 package ch.ethz.inf.vs.scandium.dtls;
 
@@ -39,7 +39,6 @@ import ch.ethz.inf.vs.scandium.dtls.AlertMessage.AlertDescription;
 import ch.ethz.inf.vs.scandium.dtls.AlertMessage.AlertLevel;
 import ch.ethz.inf.vs.scandium.util.DatagramReader;
 import ch.ethz.inf.vs.scandium.util.DatagramWriter;
-import ch.ethz.inf.vs.scandium.util.ScandiumLogger;
 
 /**
  * This message is used to provide explicit verification of a client
@@ -56,7 +55,7 @@ public class CertificateVerify extends HandshakeMessage {
 	
 	// Logging ///////////////////////////////////////////////////////////
 
-	private static final Logger LOG = ScandiumLogger.getLogger(CertificateVerify.class);
+	private static final Logger LOGGER = Logger.getLogger(CertificateVerify.class.getCanonicalName());
 
 	// DTLS-specific constants ////////////////////////////////////////
 
@@ -175,7 +174,7 @@ public class CertificateVerify extends HandshakeMessage {
 
 			signatureBytes = signature.sign();
 		} catch (Exception e) {
-			LOG.severe("Could not create signature.");
+			LOGGER.severe("Could not create signature.");
 			e.printStackTrace();
 		}
 
@@ -203,7 +202,7 @@ public class CertificateVerify extends HandshakeMessage {
 			verified = signature.verify(signatureBytes);
 
 		} catch (Exception e) {
-			LOG.severe("Could not verify the client's signature.");
+			LOGGER.severe("Could not verify the client's signature.");
 			e.printStackTrace();
 		}
 		

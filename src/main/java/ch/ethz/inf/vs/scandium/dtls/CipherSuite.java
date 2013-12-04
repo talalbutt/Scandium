@@ -26,7 +26,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  * 
- * This file is part of the Californium (Cf) CoAP framework.
+ * This file is part of the Scandium (Sc) Security for Californium.
  ******************************************************************************/
 package ch.ethz.inf.vs.scandium.dtls;
 
@@ -36,7 +36,6 @@ import java.util.logging.Logger;
 
 import ch.ethz.inf.vs.scandium.util.DatagramReader;
 import ch.ethz.inf.vs.scandium.util.DatagramWriter;
-import ch.ethz.inf.vs.scandium.util.ScandiumLogger;
 
 /**
  * A cipher suite defines key exchange algorithm, the bulk cipher algorithm, the
@@ -60,7 +59,7 @@ public enum CipherSuite {
 	
 	// Logging ////////////////////////////////////////////////////////
 
-	private static final Logger LOG = ScandiumLogger.getLogger(CipherSuite.class);
+	private static final Logger LOGGER = Logger.getLogger(CipherSuite.class.getCanonicalName());
 
 	// DTLS-specific constants ////////////////////////////////////////
 
@@ -141,7 +140,7 @@ public enum CipherSuite {
 			return CipherSuite.TLS_ECDHE_ECDSA_WITH_AES_128_CCM_8;
 
 		default:
-			LOG.info("Unknown cipher suite code: " + code);
+			LOGGER.info("Unknown cipher suite code: " + code);
 			return CipherSuite.SSL_NULL_WITH_NULL_NULL;
 		}
 	}

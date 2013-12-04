@@ -26,7 +26,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  * 
- * This file is part of the Californium (Cf) CoAP framework.
+ * This file is part of the Scandium (Sc) Security for Californium.
  ******************************************************************************/
 package ch.ethz.inf.vs.scandium.dtls;
 
@@ -40,14 +40,13 @@ import ch.ethz.inf.vs.scandium.dtls.AlertMessage.AlertLevel;
 import ch.ethz.inf.vs.scandium.dtls.CipherSuite.KeyExchangeAlgorithm;
 import ch.ethz.inf.vs.scandium.util.DatagramReader;
 import ch.ethz.inf.vs.scandium.util.DatagramWriter;
-import ch.ethz.inf.vs.scandium.util.ScandiumLogger;
 
 
 public class Record {
 
 	// Logging ////////////////////////////////////////////////////////
 
-	protected static final Logger LOG = ScandiumLogger.getLogger(Record.class);
+	protected static final Logger LOGGER = Logger.getLogger(Record.class.getCanonicalName());
 
 	// CoAP-specific constants/////////////////////////////////////////
 
@@ -342,7 +341,7 @@ public class Record {
 		// The explicit nonce is 8 bytes long
 		byte[] explicitNonceReceived = reader.readBytes(8);
 		if (!Arrays.equals(explicitNonce, explicitNonceReceived)) {
-			LOG.info("The received explicit nonce did not match the expected explicit nonce: \nReceived: " + ByteArrayUtils.toHexString(explicitNonceReceived) + "\nExpected: " + ByteArrayUtils.toHexString(explicitNonce));
+			LOGGER.info("The received explicit nonce did not match the expected explicit nonce: \nReceived: " + ByteArrayUtils.toHexString(explicitNonceReceived) + "\nExpected: " + ByteArrayUtils.toHexString(explicitNonce));
 		}
 
 		byte[] decrypted = CCMBlockCipher.decrypt(key, nonce, additionalData, reader.readBytesLeft(), 8);
@@ -528,7 +527,7 @@ public class Record {
 				break;
 
 			default:
-				LOG.severe("Unknown content type: " + type);
+				LOGGER.severe("Unknown content type: " + type);
 				break;
 			}
 		}
@@ -574,7 +573,7 @@ public class Record {
 				break;
 
 			default:
-				LOG.severe("Unknown content type: " + type.toString());
+				LOGGER.severe("Unknown content type: " + type.toString());
 				break;
 			}
 			this.fragmentBytes = byteArray;

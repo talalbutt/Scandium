@@ -26,7 +26,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  * 
- * This file is part of the Californium (Cf) CoAP framework.
+ * This file is part of the Scandium (Sc) Security for Californium.
  ******************************************************************************/
 package ch.ethz.inf.vs.scandium.dtls;
 
@@ -38,7 +38,6 @@ import ch.ethz.inf.vs.scandium.dtls.AlertMessage.AlertDescription;
 import ch.ethz.inf.vs.scandium.dtls.AlertMessage.AlertLevel;
 import ch.ethz.inf.vs.scandium.util.DatagramReader;
 import ch.ethz.inf.vs.scandium.util.DatagramWriter;
-import ch.ethz.inf.vs.scandium.util.ScandiumLogger;
 
 /**
  * Represents a structure to hold several {@link HelloExtension}.
@@ -49,7 +48,7 @@ import ch.ethz.inf.vs.scandium.util.ScandiumLogger;
 public class HelloExtensions {
 	// Logging ////////////////////////////////////////////////////////
 
-	private static final Logger LOG = ScandiumLogger.getLogger(HelloExtensions.class);
+	private static final Logger LOGGER = Logger.getLogger(HelloExtensions.class.getCanonicalName());
 
 	// DTLS-specific constants ////////////////////////////////////////
 
@@ -264,7 +263,7 @@ public class HelloExtensions {
 				return ExtensionType.SERVER_CERT_TYPE;
 
 			default:
-				LOG.severe("Unknown extension type code: " + id);
+				LOGGER.severe("Unknown extension type code: " + id);
 				AlertMessage alert = new AlertMessage(AlertLevel.FATAL, AlertDescription.UNSUPPORTED_EXTENSION);
 				throw new HandshakeException("Unknown extension type code received: " + id, alert);
 			}

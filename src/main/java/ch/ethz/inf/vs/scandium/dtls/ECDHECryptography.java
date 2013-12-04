@@ -26,7 +26,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  * 
- * This file is part of the Californium (Cf) CoAP framework.
+ * This file is part of the Scandium (Sc) Security for Californium.
  ******************************************************************************/
 package ch.ethz.inf.vs.scandium.dtls;
 
@@ -50,8 +50,6 @@ import java.util.logging.Logger;
 import javax.crypto.KeyAgreement;
 import javax.crypto.SecretKey;
 
-import ch.ethz.inf.vs.scandium.util.ScandiumLogger;
-
 /**
  * A helper class to execute the ECDHE key agreement and key generation.
  * 
@@ -62,7 +60,7 @@ public class ECDHECryptography {
 
 	// Logging ////////////////////////////////////////////////////////
 
-	protected static final Logger LOG = ScandiumLogger.getLogger(ECDHECryptography.class);
+	protected static final Logger LOGGER = Logger.getLogger(ECDHECryptography.class.getCanonicalName());
 
 	// Static members /////////////////////////////////////////////////
 
@@ -113,7 +111,7 @@ public class ECDHECryptography {
 			privateKey = (ECPrivateKey) kp.getPrivate();
 			publicKey = (ECPublicKey) kp.getPublic();
 		} catch (GeneralSecurityException e) {
-			LOG.severe("Could not generate the ECDHE keypair.");
+			LOGGER.severe("Could not generate the ECDHE keypair.");
 			e.printStackTrace();
 		}
 
@@ -135,7 +133,7 @@ public class ECDHECryptography {
 			publicKey = (ECPublicKey) keyPair.getPublic();
 
 		} catch (GeneralSecurityException e) {
-			LOG.severe("Could not generate the ECDHE keypair.");
+			LOGGER.severe("Could not generate the ECDHE keypair.");
 			e.printStackTrace();
 		}
 	}
@@ -179,7 +177,7 @@ public class ECDHECryptography {
 			secretKey = getSecret(peerPublicKey);
 
 		} catch (Exception e) {
-			LOG.severe("Could not generate the premaster secret.");
+			LOGGER.severe("Could not generate the premaster secret.");
 			e.printStackTrace();
 		}
 		return secretKey;
@@ -202,7 +200,7 @@ public class ECDHECryptography {
 			
 			secretKey = keyAgreement.generateSecret("TlsPremasterSecret");
 		} catch (Exception e) {
-			LOG.severe("Could not generate the premaster secret.");
+			LOGGER.severe("Could not generate the premaster secret.");
 			e.printStackTrace();
 		}
 		return secretKey;
@@ -221,13 +219,13 @@ public class ECDHECryptography {
 	 */
 	public static ECPoint decodePoint(byte[] encoded, EllipticCurve curve) {
 		if ((encoded.length == 0) || (encoded[0] != 0x04)) {
-			LOG.severe("Only uncompressed point format supported.");
+			LOGGER.severe("Only uncompressed point format supported.");
 			return null;
 		}
 		
 		int fieldSize = (curve.getField().getFieldSize() + 7) / 8;
 		if (encoded.length != (fieldSize * 2) + 1) {
-			LOG.severe("Point does not match field size.");
+			LOGGER.severe("Point does not match field size.");
 			return null;
 		}
 		byte[] xb = new byte[fieldSize];
@@ -256,7 +254,7 @@ public class ECDHECryptography {
 		byte[] yb = ByteArrayUtils.trimZeroes(point.getAffineY().toByteArray());
 		
 		if ((xb.length > fieldSize) || (yb.length > fieldSize)) {
-			LOG.severe("Point coordinates do not match field size.");
+			LOGGER.severe("Point coordinates do not match field size.");
 			return null;
 		}
 		

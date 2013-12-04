@@ -26,7 +26,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  * 
- * This file is part of the Californium (Cf) CoAP framework.
+ * This file is part of the Scandium (Sc) Security for Californium.
  ******************************************************************************/
 
 package ch.ethz.inf.vs.scandium.dtls;
@@ -134,7 +134,7 @@ public class ServerHandshaker extends Handshaker {
 			
 			privateKey = (PrivateKey) keyStore.getKey("server", KEY_STORE_PASSWORD.toCharArray());
 		} catch (Exception e) {
-			LOG.log(Level.SEVERE, "Could not load the keystore.", e);
+			LOGGER.log(Level.SEVERE, "Could not load the keystore.", e);
 		}
 	}
 
@@ -144,7 +144,7 @@ public class ServerHandshaker extends Handshaker {
 			// we already sent the last flight, but the client did not receive
 			// it, since we received its finished message again, so we
 			// retransmit our last flight
-			LOG.info("Received client's (" + endpointAddress.toString() + ") finished message again, retransmit the last flight.");
+			LOGGER.info("Received client's (" + endpointAddress.toString() + ") finished message again, retransmit the last flight.");
 			return lastFlight;
 		}
 
@@ -243,7 +243,7 @@ public class ServerHandshaker extends Handshaker {
 				flight = processMessage(nextMessage);
 			}
 		}
-		LOG.info("DTLS Message processed (" + endpointAddress.toString() + "):\n" + record.toString());
+		LOGGER.info("DTLS Message processed (" + endpointAddress.toString() + "):\n" + record.toString());
 		return flight;
 	}
 	
@@ -336,7 +336,7 @@ public class ServerHandshaker extends Handshaker {
 			mdWithClientFinished = (MessageDigest) md.clone();
 			mdWithClientFinished.update(clientFinished.toByteArray());
 		} catch (CloneNotSupportedException e) {
-			LOG.severe("Clone not supported.");
+			LOGGER.severe("Clone not supported.");
 			e.printStackTrace();
 		}
 
@@ -587,7 +587,7 @@ public class ServerHandshaker extends Handshaker {
 		String identity = message.getIdentity();
 
 		byte[] psk = sharedKeys.get(identity);
-		LOG.fine("Received client's (" + endpointAddress.toString() + ") key exchange message for PSK:\nIdentity: " + identity + "\nPreshared Key: " + ByteArrayUtils.toHexString(psk));
+		LOGGER.fine("Received client's (" + endpointAddress.toString() + ") key exchange message for PSK:\nIdentity: " + identity + "\nPreshared Key: " + ByteArrayUtils.toHexString(psk));
 		
 		if (psk == null) {
 			AlertMessage alert = new AlertMessage(AlertLevel.FATAL, AlertDescription.HANDSHAKE_FAILURE);
@@ -651,7 +651,7 @@ public class ServerHandshaker extends Handshaker {
 
 			cookie = Handshaker.doHMAC(md, secret, data);
 		} catch (NoSuchAlgorithmException e) {
-			LOG.info("Could not instantiate message digest algorithm.");
+			LOGGER.info("Could not instantiate message digest algorithm.");
 			e.printStackTrace();
 		}
 		if (cookie == null) {
@@ -676,7 +676,7 @@ public class ServerHandshaker extends Handshaker {
 		boolean valid = Arrays.equals(expected.getCookie(), actual.getCookie());
 
 		if (!valid) {
-			LOG.info("Client's (" + endpointAddress.toString() + ") cookie did not match expected cookie:\n" + "Expected: " + ByteArrayUtils.toHexString(expected.getCookie()) + "\n" + "Actual: " + ByteArrayUtils.toHexString(actual.getCookie()));
+			LOGGER.info("Client's (" + endpointAddress.toString() + ") cookie did not match expected cookie:\n" + "Expected: " + ByteArrayUtils.toHexString(expected.getCookie()) + "\n" + "Actual: " + ByteArrayUtils.toHexString(actual.getCookie()));
 		}
 
 		return valid;

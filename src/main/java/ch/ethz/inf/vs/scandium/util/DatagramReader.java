@@ -1,5 +1,3 @@
-package ch.ethz.inf.vs.scandium.util;
-
 /*******************************************************************************
  * Copyright (c) 2012, Institute for Pervasive Computing, ETH Zurich.
  * All rights reserved.
@@ -28,8 +26,10 @@ package ch.ethz.inf.vs.scandium.util;
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  * 
- * This file is part of the Californium (Cf) CoAP framework.
+ * This file is part of the Scandium (Sc) Security for Californium.
  ******************************************************************************/
+
+package ch.ethz.inf.vs.scandium.util;
 
 import java.io.ByteArrayInputStream;
 
