@@ -44,10 +44,10 @@ import ch.ethz.inf.vs.scandium.util.ScProperties;
 import ch.ethz.inf.vs.scandium.ScandiumLogger;
 
 public class ExampleDTLSClient {
-	
+
 	static {
 		ScandiumLogger.initializeLogger();
-		ScandiumLogger.setLoggerLevel(Level.ALL);
+		ScandiumLogger.setLoggerLevel(Level.FINE);
 	}
 
 	public static final int DEFAULT_PORT = ScProperties.std.getInt("DEFAULT_PORT");
@@ -78,14 +78,21 @@ public class ExampleDTLSClient {
 			
 			dtlsConnector.close(new InetSocketAddress("localhost" , DEFAULT_PORT));
 			
-			System.exit(0);
+			// notify main thread to exit
+			synchronized (ExampleDTLSClient.class) {
+				ExampleDTLSClient.class.notify();
+			}
 		}
-
 	}
 	
-	public static void main(String[] args) {
+	public static void main(String[] args) throws InterruptedException {
 		
 		ExampleDTLSClient client = new ExampleDTLSClient();
 		client.test();
+		
+		// Connector threads run as daemons so wait in main thread until handshake is done
+		synchronized (ExampleDTLSClient.class) {
+			ExampleDTLSClient.class.wait();
+		}
 	}
 }
