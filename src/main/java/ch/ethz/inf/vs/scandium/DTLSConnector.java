@@ -84,6 +84,15 @@ public class DTLSConnector extends ConnectorBase {
 	}
 	
 	/**
+	 * Close the DTLS session with all peers.
+	 */
+	public void close() {
+		for (DTLSSession session : dtlsSessions.values()) {
+			this.close(session.getPeer());
+		}
+	}
+	
+	/**
 	 * Close the DTLS session with the given peer.
 	 * 
 	 * @param peerAddress the remote endpoint of the session to close
@@ -103,11 +112,8 @@ public class DTLSConnector extends ConnectorBase {
 			flight.setPeerAddress(peerAddress);
 			flight.setSession(session);
 	
-			if (flight.isRetransmissionNeeded()) {
-				flights.put(addressToKey(peerAddress), flight);
-				scheduleRetransmission(flight);
-			}
-	
+			LOGGER.fine("Sending CLOSE_NOTIFY to " + peerAddress.toString());
+			
 			sendFlight(flight);
 		} else {
 			LOGGER.warning("Session to close not found: " + peerAddress.toString());
@@ -124,6 +130,7 @@ public class DTLSConnector extends ConnectorBase {
 	
 	@Override
 	public synchronized void stop() {
+		this.close();
 		this.socket.close();
 		super.stop();
 	}
@@ -139,7 +146,7 @@ public class DTLSConnector extends ConnectorBase {
 			return null;
 
 		InetSocketAddress peerAddress = new InetSocketAddress(packet.getAddress(), packet.getPort());
-		LOGGER.finer(" => find handshaker for key "+peerAddress.toString());
+		LOGGER.finest(" => find handshaker for key "+peerAddress.toString());
 		DTLSSession session = dtlsSessions.get(addressToKey(peerAddress));
 		Handshaker handshaker = handshakers.get(addressToKey(peerAddress));
 		byte[] data = Arrays.copyOfRange(packet.getData(), packet.getOffset(), packet.getLength());
@@ -153,7 +160,7 @@ public class DTLSConnector extends ConnectorBase {
 				RawData raw = null;
 
 				ContentType contentType = record.getType();
-				LOGGER.finer(" => contentType: "+contentType);
+				LOGGER.finest(" => contentType: "+contentType);
 				DTLSFlight flight = null;
 				switch (contentType) {
 				case APPLICATION_DATA:
@@ -177,7 +184,7 @@ public class DTLSConnector extends ConnectorBase {
 					case CLOSE_NOTIFY:
 						session.setActive(false);
 						
-						LOGGER.info("Received CLOSE_NOTIFY from " + peerAddress.toString());
+						LOGGER.fine("Received CLOSE_NOTIFY from " + peerAddress.toString());
 						
 						// server must reply with CLOSE_NOTIFY
 						if (!session.isClient()) {
@@ -186,6 +193,13 @@ public class DTLSConnector extends ConnectorBase {
 							flight.addMessage(new Record(ContentType.ALERT, session.getWriteEpoch(), session.getSequenceNumber(), closeNotify, session));
 							flight.setRetransmissionNeeded(false);
 						}
+						
+						if (dtlsSessions.remove(addressToKey(peerAddress))!=null) {
+							LOGGER.info("Closed session with peer: " + peerAddress.toString());
+						} else {
+							LOGGER.warning("Session to close not found: " + peerAddress.toString());
+						}
+						
 						break;
 					case HANDSHAKE_FAILURE:
 						LOGGER.warning("Handshake failure with " + peerAddress.toString());
@@ -221,11 +235,11 @@ public class DTLSConnector extends ConnectorBase {
 							 */
 							if (session == null) {
 								// create new session
-								session = new DTLSSession(true);
+								session = new DTLSSession(peerAddress, true);
 								// store session according to peer address
 								dtlsSessions.put(addressToKey(peerAddress), session);
 
-								LOGGER.finer("Client: Created new session with peer: " + peerAddress.toString());
+								LOGGER.info("Created new session as client with peer: " + peerAddress.toString());
 							}
 							handshaker = new ClientHandshaker(peerAddress, null, session);
 							handshakers.put(addressToKey(peerAddress), handshaker);
@@ -251,11 +265,11 @@ public class DTLSConnector extends ConnectorBase {
 
 							if (session == null) {
 								// create new session
-								session = new DTLSSession(false);
+								session = new DTLSSession(peerAddress, false);
 								// store session according to peer address
 								dtlsSessions.put(addressToKey(peerAddress), session);
 
-								LOGGER.info("Server: Created new session with peer: " + peerAddress.toString());
+								LOGGER.info("Created new session as server with peer: " + peerAddress.toString());
 								handshaker = new ServerHandshaker(peerAddress, session);
 							} else {
 								handshaker = new ResumingServerHandshaker(peerAddress, session);
@@ -323,7 +337,7 @@ public class DTLSConnector extends ConnectorBase {
 			
 			if (session == null) {
 				// if the first received message failed, no session has been set
-				session = new DTLSSession(false);
+				session = new DTLSSession(peerAddress, false);
 			}
 			cancelPreviousFlight(peerAddress);
 			
@@ -337,7 +351,7 @@ public class DTLSConnector extends ConnectorBase {
 	protected void sendNext(RawData message) throws Exception {
 		
 		InetSocketAddress peerAddress = message.getInetSocketAddress();
-		LOGGER.info("Sending message to " + peerAddress);
+		LOGGER.fine("Sending message to " + peerAddress);
 
 		DTLSSession session = dtlsSessions.get(addressToKey(peerAddress));
 		
@@ -354,7 +368,7 @@ public class DTLSConnector extends ConnectorBase {
 		if (session == null) {
 			// no session with endpoint available, create new empty session,
 			// start fresh handshake
-			session = new DTLSSession(true);
+			session = new DTLSSession(peerAddress, true);
 			dtlsSessions.put(addressToKey(peerAddress), session);
 			handshaker = new ClientHandshaker(peerAddress, message, session);
 
@@ -495,7 +509,7 @@ public class DTLSConnector extends ConnectorBase {
 			scheduleRetransmission(flight);
 
 		} else {
-			LOGGER.info("Maximum retransmissions reached.");
+			LOGGER.fine("Maximum retransmissions reached.");
 		}
 	}
 

@@ -64,7 +64,7 @@ public class ResumingClientHandshaker extends ClientHandshaker {
 			// we already sent the last flight, but the client did not receive
 			// it, since we received its finished message again, so we
 			// retransmit our last flight
-			LOGGER.info("Received server's finished message again, retransmit the last flight.");
+			LOGGER.finer("Received server's finished message again, retransmit the last flight.");
 			return lastFlight;
 		}
 
@@ -121,7 +121,7 @@ public class ResumingClientHandshaker extends ClientHandshaker {
 				flight = processMessage(nextMessage);
 			}
 		}
-		LOGGER.info("DTLS Message processed (" + endpointAddress.toString() + "):\n" + record.toString());
+		LOGGER.fine("DTLS Message processed (" + endpointAddress.toString() + "):\n" + record.toString());
 		return flight;
 	}
 

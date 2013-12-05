@@ -140,7 +140,7 @@ public enum CipherSuite {
 			return CipherSuite.TLS_ECDHE_ECDSA_WITH_AES_128_CCM_8;
 
 		default:
-			LOGGER.info("Unknown cipher suite code: " + code);
+			LOGGER.warning("Unknown cipher suite code, fallback to SSL_NULL_WITH_NULL_NULL: " + code);
 			return CipherSuite.SSL_NULL_WITH_NULL_NULL;
 		}
 	}

@@ -179,7 +179,7 @@ public class RawPublicKey {
 				break;
 
 			default:
-				LOGGER.info("Unknown DER tag: " + tag);
+				LOGGER.warning("Unknown DER tag: " + tag);
 				break;
 			}
 		}

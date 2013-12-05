@@ -181,6 +181,11 @@ public class Record {
 		while (reader.bytesAvailable()) {
 
 			ContentType contentType = ContentType.getTypeByValue(reader.read(CONTENT_TYPE_BITS));
+			
+			if (contentType==null) {
+				LOGGER.warning("Received illeagal record content type.");
+				break;
+			}
 	
 			int major = reader.read(VERSION_BITS);
 			int minor = reader.read(VERSION_BITS);

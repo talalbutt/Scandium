@@ -144,7 +144,7 @@ public class ServerHandshaker extends Handshaker {
 			// we already sent the last flight, but the client did not receive
 			// it, since we received its finished message again, so we
 			// retransmit our last flight
-			LOGGER.info("Received client's (" + endpointAddress.toString() + ") finished message again, retransmit the last flight.");
+			LOGGER.finer("Received client's (" + endpointAddress.toString() + ") finished message again, retransmit the last flight.");
 			return lastFlight;
 		}
 
@@ -243,7 +243,7 @@ public class ServerHandshaker extends Handshaker {
 				flight = processMessage(nextMessage);
 			}
 		}
-		LOGGER.info("DTLS Message processed (" + endpointAddress.toString() + "):\n" + record.toString());
+		LOGGER.fine("DTLS Message processed (" + endpointAddress.toString() + "):\n" + record.toString());
 		return flight;
 	}
 	
@@ -587,7 +587,8 @@ public class ServerHandshaker extends Handshaker {
 		String identity = message.getIdentity();
 
 		byte[] psk = sharedKeys.get(identity);
-		LOGGER.fine("Received client's (" + endpointAddress.toString() + ") key exchange message for PSK:\nIdentity: " + identity + "\nPreshared Key: " + ByteArrayUtils.toHexString(psk));
+		
+		LOGGER.info("Client " + endpointAddress.toString() + " used PSK identity: " + identity);
 		
 		if (psk == null) {
 			AlertMessage alert = new AlertMessage(AlertLevel.FATAL, AlertDescription.HANDSHAKE_FAILURE);
@@ -651,7 +652,7 @@ public class ServerHandshaker extends Handshaker {
 
 			cookie = Handshaker.doHMAC(md, secret, data);
 		} catch (NoSuchAlgorithmException e) {
-			LOGGER.info("Could not instantiate message digest algorithm.");
+			LOGGER.severe("Could not instantiate message digest algorithm.");
 			e.printStackTrace();
 		}
 		if (cookie == null) {

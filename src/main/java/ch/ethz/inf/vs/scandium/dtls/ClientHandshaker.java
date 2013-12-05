@@ -237,7 +237,7 @@ public class ClientHandshaker extends Handshaker {
 			}
 		}
 
-		LOGGER.info("DTLS Message processed (" + endpointAddress.toString() + "):\n" + record.toString());
+		LOGGER.fine("DTLS Message processed (" + endpointAddress.toString() + "):\n" + record.toString());
 		return flight;
 	}
 
@@ -450,6 +450,8 @@ public class ClientHandshaker extends Handshaker {
 				AlertMessage alert = new AlertMessage(AlertLevel.FATAL, AlertDescription.HANDSHAKE_FAILURE);
 				throw new HandshakeException("No preshared secret found for identity: " + identity, alert);
 			}
+			
+			LOGGER.info("Using PSK identity: " + identity);
 
 			premasterSecret = generatePremasterSecretFromPSK(psk);
 			generateKeys(premasterSecret);

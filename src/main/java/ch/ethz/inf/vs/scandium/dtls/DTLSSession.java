@@ -30,6 +30,7 @@
  ******************************************************************************/
 package ch.ethz.inf.vs.scandium.dtls;
 
+import java.net.InetSocketAddress;
 import java.security.cert.X509Certificate;
 import java.util.HashMap;
 import java.util.Map;
@@ -44,6 +45,12 @@ import ch.ethz.inf.vs.scandium.dtls.CipherSuite.KeyExchangeAlgorithm;
  * 
  */
 public class DTLSSession {
+	
+	/**
+	 * The remote peer of this session.
+	 */
+	private InetSocketAddress peer = null;
+	
 	/**
 	 * An arbitrary byte sequence chosen by the server to identify an active or
 	 * resumable session state.
@@ -118,7 +125,8 @@ public class DTLSSession {
 	 * @param isClient
 	 *            whether the entity represents a client or a server.
 	 */
-	public DTLSSession(boolean isClient) {
+	public DTLSSession(InetSocketAddress peerAddress, boolean isClient) {
+		this.peer = peerAddress;
 		this.isClient = isClient;
 		this.cipherSuite = CipherSuite.SSL_NULL_WITH_NULL_NULL;
 		this.compressionMethod = CompressionMethod.NULL;
@@ -281,4 +289,7 @@ public class DTLSSession {
 		this.receiveRawPublicKey = receiveRawPublicKey;
 	}
 
+	public InetSocketAddress getPeer() {
+		return peer;
+	}
 }
