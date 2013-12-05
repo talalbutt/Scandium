@@ -33,6 +33,7 @@ package ch.ethz.inf.vs.scandium.dtls;
 
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.InetSocketAddress;
 import java.security.KeyStore;
 import java.security.MessageDigest;
@@ -100,10 +101,14 @@ public abstract class Handshaker {
 	protected static Map<String, byte[]> sharedKeys = new HashMap<String, byte[]>();
 
 	static {
-		sharedKeys.put("password", "sesame".getBytes());
-		sharedKeys.put("Client", "Client".getBytes());
-		sharedKeys.put("Server", "Server".getBytes());
-		sharedKeys.put("PSK_Identity", new byte[] { 0x01, 0x02, 0x03, 0x04, 0x05, 0x06 });
+		try {
+			sharedKeys.put("password", "sesame".getBytes("US-ASCII"));
+			sharedKeys.put("Client", "Client".getBytes("US-ASCII"));
+			sharedKeys.put("Server", "Server".getBytes("US-ASCII"));
+			sharedKeys.put("PSK_Identity", new byte[] { 0x01, 0x02, 0x03, 0x04, 0x05, 0x06 });
+		} catch (UnsupportedEncodingException e) {
+			LOGGER.severe("Unsupported Encoding in given PSKs.");
+		}
 	}
 
 	// Members ////////////////////////////////////////////////////////
