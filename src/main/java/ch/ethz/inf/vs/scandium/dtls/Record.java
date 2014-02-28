@@ -33,6 +33,7 @@ package ch.ethz.inf.vs.scandium.dtls;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import ch.ethz.inf.vs.scandium.dtls.AlertMessage.AlertDescription;
@@ -58,7 +59,7 @@ public class Record {
 
 	private static final int SEQUENCE_NUMBER_BITS = 48;
 
-	private static final int LENGHT_BITS = 16;
+	private static final int LENGTH_BITS = 16;
 
 	// Members ////////////////////////////////////////////////////////
 
@@ -96,6 +97,7 @@ public class Record {
 	// Constructors ///////////////////////////////////////////////////
 
 	/**
+	 * Creates a record representing a DTLSCiphertext struct received from the network.
 	 * Called when reconstructing the record from a byte array. The fragment
 	 * will remain in its binary representation up to the {@link DTLSLayer}.
 	 * 
@@ -103,8 +105,8 @@ public class Record {
 	 * @param version
 	 * @param epoch
 	 * @param sequenceNumber
-	 * @param length
-	 * @param fragmentBytes
+	 * @param length the number of bytes of encrypted data 
+	 * @param fragmentBytes the encrypted data
 	 */
 	public Record(ContentType type, ProtocolVersion version, int epoch, long sequenceNumber, int length, byte[] fragmentBytes) {
 		this.type = type;
@@ -116,7 +118,7 @@ public class Record {
 	}
 
 	/**
-	 * Called when creating a record after receiving a {@link Message}.
+	 * Creates a record representing a DTLSPlaintext struct based on a {@link DTLSMessage}.
 	 * 
 	 * @param type
 	 *            the type
@@ -158,7 +160,7 @@ public class Record {
 		writer.writeLong(sequenceNumber, SEQUENCE_NUMBER_BITS);
 
 		length = fragmentBytes.length;
-		writer.write(length, LENGHT_BITS);
+		writer.write(length, LENGTH_BITS);
 
 		writer.writeBytes(fragmentBytes);
 
@@ -166,12 +168,13 @@ public class Record {
 	}
 
 	/**
-	 * Decodes the DTLS Record from its raw binary representation. Potentially
-	 * multiple Records are stored in 1 datagram.
+	 * Parses raw binary representations of DTLS records into an object representation.
 	 * 
-	 * @param byteArray
-	 *            the byte array
-	 * @return the list of decoded records
+	 * The binary representation is expected to comply with the structure defined
+	 * in <a href="http://tools.ietf.org/html/rfc6347#section-4.3.1">RFC6347 - DTLS</a>.
+	 * 
+	 * @param byteArray the raw binary representation containing one or more DTLS records
+	 * @return the object representations of the DTLS records
 	 */
 	public static List<Record> fromByteArray(byte[] byteArray) {
 		List<Record> records = new ArrayList<Record>();
@@ -180,10 +183,11 @@ public class Record {
 		
 		while (reader.bytesAvailable()) {
 
-			ContentType contentType = ContentType.getTypeByValue(reader.read(CONTENT_TYPE_BITS));
+			int type = reader.read(CONTENT_TYPE_BITS);
+			ContentType contentType = ContentType.getTypeByValue(type);
 			
 			if (contentType==null) {
-				LOGGER.warning("Received illeagal record content type.");
+				LOGGER.warning(String.format("Received illegal record content type: %s", type));
 				break;
 			}
 	
@@ -194,7 +198,7 @@ public class Record {
 			int epoch = reader.read(EPOCH_BITS);
 			long sequenceNumber = reader.readLong(SEQUENCE_NUMBER_BITS);
 	
-			int length = reader.read(LENGHT_BITS);
+			int length = reader.read(LENGTH_BITS);
 	
 			// delay decryption/interpretation of fragment
 			byte[] fragmentBytes = reader.readBytes(length);
@@ -293,7 +297,7 @@ public class Record {
 	
 	// AEAD Cryptography //////////////////////////////////////////////
 	
-	private byte[] encryptAEAD(byte[] byteArray) {
+	protected byte[] encryptAEAD(byte[] byteArray) {
 		/*
 		 * See http://tools.ietf.org/html/rfc5246#section-6.2.3.3 for
 		 * explanation of additional data or
@@ -326,29 +330,38 @@ public class Record {
 	 * @throws HandshakeException
 	 *             if the decryption fails.
 	 */
-	private byte[] decryptAEAD(byte[] byteArray) throws HandshakeException {
+	protected byte[] decryptAEAD(byte[] byteArray) throws HandshakeException {
 		/*
-		 * See http://tools.ietf.org/html/rfc5246#section-6.2.3.3 for
-		 * explanation of additional data or
-		 * http://tools.ietf.org/html/rfc5116#section-2.2
 		 */
+		
+		// the "implicit" part of the nonce is the salt as exchanged during the session establishment
 		byte[] iv = session.getReadState().getIv().getIV();
-		byte[] nonce = generateNonce(iv);
+		// the symmetric key exchanged during the DTLS handshake
 		byte[] key = session.getReadState().getEncryptionKey().getEncoded();
 		/*
+		 * See http://tools.ietf.org/html/rfc5246#section-6.2.3.3 and
+		 * http://tools.ietf.org/html/rfc5116#section-2.1 for an
+		 * explanation of "additional data" and its structure
+		 * 
 		 * The decrypted message is always 16 bytes shorter than the cipher (8
 		 * for the authentication tag and 8 for the explicit nonce).
 		 */
 		byte[] additionalData = generateAdditionalData(getLength() - 16);
 
 		DatagramReader reader = new DatagramReader(byteArray);
+		
+		// create explicit nonce from values provided in DTLS record 
 		byte[] explicitNonce = generateExplicitNonce();
-		// The explicit nonce is 8 bytes long
-		byte[] explicitNonceReceived = reader.readBytes(8);
-		if (!Arrays.equals(explicitNonce, explicitNonceReceived)) {
-			LOGGER.info("The received explicit nonce did not match the expected explicit nonce: \nReceived: " + ByteArrayUtils.toHexString(explicitNonceReceived) + "\nExpected: " + ByteArrayUtils.toHexString(explicitNonce));
+		// retrieve actual explicit nonce as contained in GenericAEADCipher struct (8 bytes long)
+		byte[] explicitNonceUsed = reader.readBytes(8);
+		if (!Arrays.equals(explicitNonce, explicitNonceUsed) && LOGGER.isLoggable(Level.FINE)) {
+			StringBuffer b = new StringBuffer("The explicit nonce used by the sender does not match the values provided in the DTLS record");
+			b.append("\nUsed    : ").append(ByteArrayUtils.toHexString(explicitNonceUsed));
+			b.append("\nExpected: ").append(ByteArrayUtils.toHexString(explicitNonce));
+			LOGGER.log(Level.FINE, b.toString());
 		}
 
+		byte[] nonce = getNonce(iv, explicitNonceUsed);
 		byte[] decrypted = CCMBlockCipher.decrypt(key, nonce, additionalData, reader.readBytesLeft(), 8);
 
 		return decrypted;
@@ -374,22 +387,31 @@ public class Record {
 	 * @return the 12 bytes nonce.
 	 */
 	private byte[] generateNonce(byte[] iv) {
+		return getNonce(iv, generateExplicitNonce());
+	}
+
+	private byte[] getNonce(byte[] implicitNonce, byte[] explicitNonce) {
 		DatagramWriter writer = new DatagramWriter();
 		
-		writer.writeBytes(iv);
-		writer.writeBytes(generateExplicitNonce());
+		writer.writeBytes(implicitNonce);
+		writer.writeBytes(explicitNonce);
 		
 		return writer.toByteArray();
 	}
+
 	
 	/**
-	 * Generates the explicit part of the nonce used by the AEAD Cipher type. In
-	 * this case it is the 2 bytes epoch concatenated with the 6 bytes sequence
-	 * number.
+	 * Generates the explicit part of the nonce to be used with the AEAD Cipher.
 	 * 
-	 * @return the explicit nonce.
+	 * <a href="http://tools.ietf.org/html/rfc6655#section-3">RFC6655, Section 3</a>
+	 * encourages the use of the session's 16bit epoch value concatenated
+	 * with a monotonically increasing 48bit sequence number as the explicit nonce. 
+	 * 
+	 * @return the explicit nonce constructed from the epoch and sequence number
 	 */
 	private byte[] generateExplicitNonce() {
+		
+		//TODO: re-factor to use simple byte array manipulation instead of using bit-based DatagramWriter
 		DatagramWriter writer = new DatagramWriter();
 		
 		writer.write(epoch, EPOCH_BITS);
@@ -422,7 +444,7 @@ public class Record {
 		writer.write(version.getMajor(), VERSION_BITS);
 		writer.write(version.getMinor(), VERSION_BITS);
 		
-		writer.write(length, LENGHT_BITS);
+		writer.write(length, LENGTH_BITS);
 
 		return writer.toByteArray();
 	}
