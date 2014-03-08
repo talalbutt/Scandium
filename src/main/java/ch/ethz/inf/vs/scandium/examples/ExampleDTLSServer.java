@@ -47,8 +47,8 @@ import ch.ethz.inf.vs.scandium.util.ScProperties;
 public class ExampleDTLSServer {
 
 	static {
-		ScandiumLogger.initializeLogger();
-		ScandiumLogger.setLoggerLevel(Level.ALL);
+		ScandiumLogger.initialize();
+		ScandiumLogger.setLevel(Level.ALL);
 	}
 
 	public static final int DEFAULT_PORT = ScProperties.std.getInt("DEFAULT_PORT");

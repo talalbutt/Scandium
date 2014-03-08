@@ -7,7 +7,7 @@ import java.util.logging.StreamHandler;
 
 /**
  * ScandiumLogger is a helper class for the logging in Scandium.
- * CaliforniumLogger makes sure that {@link #initializeLogger()} initializes the
+ * CaliforniumLogger makes sure that {@link #initialize()} initializes the
  * loggers before use so that they print in the appropriate format.
  */
 public class ScandiumLogger {
@@ -30,7 +30,7 @@ public class ScandiumLogger {
 	 * and the <code>Thread name</code> is the name of the thread that executed
 	 * the logging statement.
 	 */
-	public static void initializeLogger() {
+	public static void initialize() {
 		SCANDIUM_LOGGER.setUseParentHandlers(false);
 		SCANDIUM_LOGGER.addHandler(new ScandiumHandler());
 	}
@@ -39,7 +39,7 @@ public class ScandiumLogger {
 	 * Disables logging by setting the level of all loggers that have been
 	 * requested over this class to OFF.
 	 */
-	public static void disableLogging() {
+	public static void disable() {
 		SCANDIUM_LOGGER.setLevel(Level.OFF);
 	}
 
@@ -51,7 +51,7 @@ public class ScandiumLogger {
 	 * @param level
 	 *            the new logger level
 	 */
-	public static void setLoggerLevel(Level level) {
+	public static void setLevel(Level level) {
 		SCANDIUM_LOGGER.setLevel(level);
 	}
 
