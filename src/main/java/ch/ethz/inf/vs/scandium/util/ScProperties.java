@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013, Institute for Pervasive Computing, ETH Zurich.
+ * Copyright (c) 2014, Institute for Pervasive Computing, ETH Zurich.
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,9 +26,8 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  * 
- * This file is part of Scandium (Sc) Security for Californium.
+ * This file is part of the Scandium (Sc) Security for Californium.
  ******************************************************************************/
-
 package ch.ethz.inf.vs.scandium.util;
 
 import java.io.FileInputStream;

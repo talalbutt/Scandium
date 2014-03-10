@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012, Institute for Pervasive Computing, ETH Zurich.
+ * Copyright (c) 2014, Institute for Pervasive Computing, ETH Zurich.
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -74,8 +74,8 @@ public class ClientHandshaker extends Handshaker {
 	protected ClientHello clientHello = null;
 
 	/*
-	 * Store all the message which can possibly be sent by the server. We
-	 * need these to compute the handshake hash.
+	 * Store all the message which can possibly be sent by the server.
+	 * We need these to compute the handshake hash.
 	 */
 	/** The server's {@link ServerHello}. Mandatory. */
 	protected ServerHello serverHello;
