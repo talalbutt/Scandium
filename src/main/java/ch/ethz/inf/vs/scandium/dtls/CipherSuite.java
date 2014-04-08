@@ -51,11 +51,10 @@ import ch.ethz.inf.vs.scandium.util.DatagramWriter;
 public enum CipherSuite {
 	
 	// Cipher suites //////////////////////////////////////////////////
-
+	
 	SSL_NULL_WITH_NULL_NULL("SSL_NULL_WITH_NULL_NULL", 0x0000, KeyExchangeAlgorithm.NULL, BulkCipherAlgorithm.NULL, MACAlgorithm.NULL, PRFAlgorithm.TLS_PRF_SHA256, CipherType.NULL),
 	TLS_PSK_WITH_AES_128_CCM_8("TLS_PSK_WITH_AES_128_CCM_8", 0xC0A8, KeyExchangeAlgorithm.PSK, BulkCipherAlgorithm.AES,	MACAlgorithm.NULL, PRFAlgorithm.TLS_PRF_SHA256,	CipherType.AEAD),
-	// TODO change code once officially specified by IANA
-	TLS_ECDHE_ECDSA_WITH_AES_128_CCM_8("TLS_ECDHE_ECDSA_WITH_AES_128_CCM_8", 0xC0AC, KeyExchangeAlgorithm.EC_DIFFIE_HELLMAN, BulkCipherAlgorithm.AES, MACAlgorithm.NULL, PRFAlgorithm.TLS_PRF_SHA256, CipherType.AEAD);
+	TLS_ECDHE_ECDSA_WITH_AES_128_CCM_8("TLS_ECDHE_ECDSA_WITH_AES_128_CCM_8", 0xC0AE, KeyExchangeAlgorithm.EC_DIFFIE_HELLMAN, BulkCipherAlgorithm.AES, MACAlgorithm.NULL, PRFAlgorithm.TLS_PRF_SHA256, CipherType.AEAD);
 	
 	// Logging ////////////////////////////////////////////////////////
 
@@ -136,7 +135,7 @@ public enum CipherSuite {
 			return CipherSuite.SSL_NULL_WITH_NULL_NULL;
 		case 0xC0A8:
 			return CipherSuite.TLS_PSK_WITH_AES_128_CCM_8;
-		case 0xC0AC:
+		case 0xC0AE:
 			return CipherSuite.TLS_ECDHE_ECDSA_WITH_AES_128_CCM_8;
 
 		default:
