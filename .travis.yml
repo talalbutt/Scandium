@@ -2,8 +2,3 @@ language: java
 
 jdk: oraclejdk7
 
-script: "mvn clean deploy"
-
-env:
-  global:
-    secure: "a+CneJ7KvGNsVpmhDMymTlPnzq0ZYZSwcV3WgarTrlrtX38ZPi9bsCtk4ImdLRAeW0M8w8w3lYt1RYtGwmF/BcoCnwIqxenHjdk0IdHz1KHYfbCArU85krZL6jUh7okuJg3vBYvqry8jDc4jPnP2uOAe5YSWsXLrbdtuBeds60Y="
