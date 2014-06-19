@@ -97,16 +97,18 @@ public class Record {
 	// Constructors ///////////////////////////////////////////////////
 
 	/**
-	 * Creates a record representing a DTLSCiphertext struct received from the network.
-	 * Called when reconstructing the record from a byte array. The fragment
-	 * will remain in its binary representation up to the {@link DTLSLayer}.
+	 * Creates a record representing a DTLSCiphertext struct received from the
+	 * network. Called by the {@link ch.ethz.inf.vs.scandium.DTLSConnector} when
+	 * reconstructing the record from a byte array.
 	 * 
 	 * @param type
 	 * @param version
 	 * @param epoch
 	 * @param sequenceNumber
-	 * @param length the number of bytes of encrypted data 
-	 * @param fragmentBytes the encrypted data
+	 * @param length
+	 *            the number of bytes of encrypted data
+	 * @param fragmentBytes
+	 *            the encrypted data
 	 */
 	public Record(ContentType type, ProtocolVersion version, int epoch, long sequenceNumber, int length, byte[] fragmentBytes) {
 		this.type = type;
@@ -215,8 +217,8 @@ public class Record {
 	 * Encrypts the fragment, if a ciphersuite is available that supports
 	 * encryption.
 	 * 
-	 * @param byteArray
-	 * @return
+	 * @param byteArray the fragment to encrypt
+	 * @return the encrypted fragment
 	 */
 	private byte[] encryptFragment(byte[] byteArray) {
 		if (session == null) {
