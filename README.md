@@ -1,31 +1,42 @@
 Scandium (Sc) Security for Californium
 ======================================
 
+---
+### This repository is frozen, as the project is continued at the [Eclipse Foundation](http://www.eclipse.org/californium). The new repositories are also on GitHub and can be found [here](https://github.com/eclipse/?query=californium).
+---
+
 [![Build Status](https://api.travis-ci.org/mkovatsc/Scandium.png?branch=master)](https://travis-ci.org/mkovatsc/Scandium)
 
 Scandium (Sc) is a DTLS 1.2 implementation for the Californium (Cf) CoAP framework.
 It uses the [element-connector](https://github.com/mkovatsc/element-connector)
 interface, which is a socket-like API to send and receive raw data and allows
 the modularization of Californium (Cf). Hence, Scandium (Sc) can also be used
-standalone, i.e. without Cf's CoAP implementation on top.
+standalone, that is, without Cf's CoAP implementation on top.
 
 Maven
 -----
 
-Use `mvn clean install` in the Cf root directory to build everything.
-Standalone JARs of the examples will be copied to ./run/.
-(For convenience they are directly included in the Git repository.)
+Use `mvn clean install` in the root directory to build everything.
+The artifact is hosted at [Maven Central](http://search.maven.org/#search|ga|1|ch.ethz.inf.vs).
+Thus, it is enough to include the dependency on `element-connector` in the pom.xml of your project:
 
-The Maven repositories are:
-
-* [https://github.com/mkovatsc/maven/raw/master/releases/](https://github.com/mkovatsc/maven/raw/master/releases/)
-* [https://github.com/mkovatsc/maven/raw/master/snapshots/](https://github.com/mkovatsc/maven/raw/master/snapshots/)
+```xml
+  <dependencies>
+    ...
+    <dependency>
+      <groupId>ch.ethz.inf.vs</groupId>
+      <artifactId>scandium</artifactId>
+      <version>0.1.6-final</version>
+    </dependency>
+    ...
+  </dependencies>
+```
 
 Eclipse
 -------
 
 The project also includes the project files for Eclipse. Make sure to have the
-following before importing the Californium (Cf) projects:
+following before importing the Scandium (Sc) project:
 
 * [Eclipse EGit](http://www.eclipse.org/egit/)
 * [m2e - Maven Integration for Eclipse](http://www.eclipse.org/m2e/)
